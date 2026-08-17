@@ -1,0 +1,2083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="description" content="Stardance — the ultra-premium NASA-partnered interplanetary booking portal. Reserve your commercial orbital berth.">
+    <title>NASA × STARDANCE | Interplanetary Booking Portal</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Ctext%20y='0.9em'%20font-size='90'%3E%F0%9F%9A%80%3C/text%3E%3C/svg%3E">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        void: '#05050A',
+                        cosmos: '#0A1128',
+                        cyanglow: '#00F0FF',
+                        gold: '#FFD700'
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        rajdhani: ['Rajdhani', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- QR Code generator -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+    <!-- html2canvas for pass download -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <style>
+        :root {
+            --void: #05050A;
+            --cosmos: #0A1128;
+            --cyan: #00F0FF;
+            --gold: #FFD700;
+            color-scheme: dark;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--void);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+
+        /* ---------- Deep space glassmorphism ---------- */
+        .glass {
+            background: rgba(10, 17, 40, 0.55);
+            backdrop-filter: blur(18px) saturate(140%);
+            -webkit-backdrop-filter: blur(18px) saturate(140%);
+            border: 1px solid rgba(0, 240, 255, 0.14);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+
+        .glass-glow {
+            border-color: rgba(0, 240, 255, 0.35);
+            box-shadow: 0 0 45px rgba(0, 240, 255, 0.13), 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .text-glow { text-shadow: 0 0 24px rgba(0, 240, 255, 0.55); }
+        .text-glow-gold { text-shadow: 0 0 24px rgba(255, 215, 0, 0.45); }
+
+        /* ---------- Animated starfield + nebulae ---------- */
+        .space-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -3;
+            background-image:
+                radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.9), transparent 60%),
+                radial-gradient(2px 2px at 40px 70px, rgba(56, 189, 248, 0.85), transparent 60%),
+                radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.8), transparent 60%),
+                radial-gradient(2px 2px at 160px 120px, rgba(168, 85, 247, 0.8), transparent 60%),
+                radial-gradient(1px 1px at 200px 20px, rgba(255, 255, 255, 0.7), transparent 60%),
+                radial-gradient(2px 2px at 120px 180px, rgba(0, 240, 255, 0.7), transparent 60%);
+            background-repeat: repeat;
+            background-size: 220px 220px;
+            animation: drift 160s linear infinite;
+        }
+
+        .space-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(1.5px 1.5px at 60px 140px, rgba(255, 255, 255, 0.85), transparent 60%),
+                radial-gradient(1.5px 1.5px at 180px 90px, rgba(255, 215, 0, 0.6), transparent 60%),
+                radial-gradient(1px 1px at 30px 200px, rgba(255, 255, 255, 0.7), transparent 60%);
+            background-repeat: repeat;
+            background-size: 240px 240px;
+            animation: twinkle 4.5s ease-in-out infinite;
+        }
+
+        .nebula {
+            position: fixed;
+            z-index: -2;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .nebula-cyan { width: 60vw; height: 60vw; left: -18vw; top: -20vh; background: radial-gradient(circle, rgba(0, 240, 255, 0.35), transparent 65%); animation: floaty 26s ease-in-out infinite; }
+        .nebula-purple { width: 55vw; height: 55vw; right: -20vw; top: 30vh; background: radial-gradient(circle, rgba(124, 58, 237, 0.28), transparent 65%); animation: floaty 32s ease-in-out infinite reverse; }
+        .nebula-gold { width: 40vw; height: 40vw; left: 30vw; bottom: -25vh; background: radial-gradient(circle, rgba(255, 215, 0, 0.12), transparent 65%); animation: floaty 38s ease-in-out infinite; }
+
+        @keyframes drift { to { background-position: 440px 440px; } }
+        @keyframes twinkle { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+        @keyframes floaty {
+            0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+            50% { transform: translate3d(40px, -50px, 0) scale(1.15); }
+        }
+
+        /* ---------- Inputs ---------- */
+        .inp {
+            background: rgba(2, 6, 23, 0.75);
+            border: 1px solid rgba(100, 116, 139, 0.45);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #fff;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+        }
+        .inp:focus {
+            border-color: rgba(0, 240, 255, 0.85);
+            box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.15), 0 0 22px rgba(0, 240, 255, 0.18);
+        }
+        .inp.error {
+            border-color: #f87171;
+            box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15);
+        }
+
+        /* ---------- Destination cards ---------- */
+        .dest-card {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-align: left;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: rgba(15, 23, 42, 0.55);
+            border-radius: 0.9rem;
+            padding: 0.85rem 1rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            width: 100%;
+            color: #e2e8f0;
+        }
+        .dest-card:hover {
+            border-color: rgba(0, 240, 255, 0.55);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 26px rgba(0, 240, 255, 0.14);
+        }
+        .dest-card.selected {
+            border-color: var(--cyan);
+            background: rgba(0, 240, 255, 0.09);
+            box-shadow: 0 0 32px rgba(0, 240, 255, 0.22), inset 0 0 22px rgba(0, 240, 255, 0.06);
+        }
+        .dest-card:disabled {
+            opacity: 0.42;
+            cursor: not-allowed;
+            filter: grayscale(0.7);
+        }
+        .dest-card:disabled:hover {
+            transform: none;
+            border-color: rgba(148, 163, 184, 0.18);
+            box-shadow: none;
+        }
+
+        /* ---------- Radio / option cards ---------- */
+        .opt-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.85rem;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: rgba(15, 23, 42, 0.55);
+            border-radius: 0.9rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            width: 100%;
+        }
+        .opt-card:hover { border-color: rgba(0, 240, 255, 0.45); }
+        .opt-card.selected {
+            border-color: var(--cyan);
+            background: rgba(0, 240, 255, 0.08);
+            box-shadow: 0 0 28px rgba(0, 240, 255, 0.18);
+        }
+
+        /* ---------- Buttons ---------- */
+        .btn-cyan {
+            background: linear-gradient(90deg, #00e5ff, #0ea5e9, #2563eb);
+            color: #000;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 800;
+            border-radius: 0.75rem;
+            padding: 0.9rem 1.6rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.35);
+            letter-spacing: 0.04em;
+        }
+        .btn-cyan:hover:not(:disabled) {
+            box-shadow: 0 0 55px rgba(0, 240, 255, 0.55);
+            transform: translateY(-1px);
+            filter: brightness(1.08);
+        }
+        .btn-cyan:disabled { opacity: 0.65; cursor: wait; }
+        .btn-ghost {
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            color: var(--cyan);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            border-radius: 0.75rem;
+            padding: 0.9rem 1.6rem;
+            transition: all 0.25s ease;
+        }
+        .btn-ghost:hover { background: rgba(0, 240, 255, 0.08); box-shadow: 0 0 24px rgba(0, 240, 255, 0.2); }
+
+        /* ---------- Payment morph loader ---------- */
+        .pay-spinner {
+            display: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 3px solid rgba(0, 240, 255, 0.15);
+            border-top-color: var(--cyan);
+            border-right-color: rgba(0, 240, 255, 0.65);
+            box-shadow: 0 0 22px rgba(0, 240, 255, 0.5);
+        }
+        .pay-spinner.show { display: block; animation: spin360 0.8s linear infinite; }
+
+        .pay-check { display: none; width: 44px; height: 44px; }
+        .pay-check.show { display: block; animation: popIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+        .pay-check .c1 { stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 3; fill: #0284c7; stroke: var(--cyan); animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) 0.1s forwards; }
+        .pay-check .c2 { stroke-dasharray: 48; stroke-dashoffset: 48; stroke-width: 3; stroke: #ffffff; fill: none; transform-origin: 50% 50%; animation: stroke 0.35s cubic-bezier(0.65, 0, 0.45, 1) 0.65s forwards; }
+
+        @keyframes spin360 { to { transform: rotate(360deg); } }
+        @keyframes stroke { 100% { stroke-dashoffset: 0; } }
+        @keyframes popIn {
+            0% { transform: scale(0.35); opacity: 0; }
+            70% { transform: scale(1.12); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes shakeX {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        .shake { animation: shakeX 0.4s ease; }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+        .panel-enter { animation: fadeUp 0.45s ease both; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 26px rgba(0, 240, 255, 0.25); }
+            50% { box-shadow: 0 0 55px rgba(0, 240, 255, 0.5); }
+        }
+        .glow-pulse { animation: glowPulse 2.4s ease-in-out infinite; }
+
+        /* ---------- Stepper ---------- */
+        .step-circle {
+            width: 2.6rem;
+            height: 2.6rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 800;
+            font-size: 0.8rem;
+            border: 1px solid rgba(100, 116, 139, 0.5);
+            background: rgba(10, 17, 40, 0.8);
+            color: #94a3b8;
+            transition: all 0.35s ease;
+            position: relative;
+            z-index: 2;
+        }
+        .step-item.active .step-circle {
+            border-color: var(--cyan);
+            color: var(--cyan);
+            box-shadow: 0 0 26px rgba(0, 240, 255, 0.45), inset 0 0 12px rgba(0, 240, 255, 0.15);
+            text-shadow: 0 0 12px rgba(0, 240, 255, 0.8);
+        }
+        .step-item.done .step-circle {
+            background: rgba(0, 240, 255, 0.15);
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+        .step-item .step-label { transition: color 0.3s ease; }
+        .step-item.active .step-label { color: var(--cyan); text-shadow: 0 0 14px rgba(0, 240, 255, 0.6); }
+        .step-item.done .step-label { color: #67e8f9; }
+
+        /* ---------- Ticket ---------- */
+        .ticket-titanium {
+            background:
+                linear-gradient(160deg, rgba(10, 17, 40, 0.96), rgba(2, 6, 23, 0.96)),
+                repeating-linear-gradient(45deg, rgba(0, 240, 255, 0.03) 0 6px, transparent 6px 12px);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 1.25rem;
+            box-shadow:
+                0 0 60px rgba(0, 240, 255, 0.12),
+                0 25px 60px rgba(0, 0, 0, 0.65),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .ticket-titanium::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            left: -20%;
+            width: 60%;
+            height: 180%;
+            transform: rotate(18deg);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.055), transparent);
+            pointer-events: none;
+        }
+        .ticket-perf {
+            border-top: 2px dashed rgba(0, 240, 255, 0.25);
+            position: relative;
+        }
+        .ticket-perf::before, .ticket-perf::after {
+            content: '';
+            position: absolute;
+            top: -11px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--void);
+            border: 1px solid rgba(0, 240, 255, 0.25);
+        }
+        .ticket-perf::before { left: -1px; }
+        .ticket-perf::after { right: -1px; }
+
+        .barcode { display: flex; align-items: center; height: 2.9rem; gap: 0; }
+        .barcode span { display: block; height: 100%; background: rgba(226, 232, 240, 0.95); border-radius: 1px; }
+
+        /* ---------- Shimmer + ticket FX ---------- */
+        .gold-shimmer {
+            background: linear-gradient(90deg, #FFD700 15%, #fff6c0 40%, #FFD700 65%);
+            background-size: 220% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shimmer 4.5s linear infinite;
+        }
+        @keyframes shimmer { to { background-position: -220% center; } }
+
+        @keyframes ticketReveal {
+            0% { opacity: 0; transform: perspective(1400px) rotateX(14deg) translateY(34px) scale(0.95); filter: blur(4px); }
+            100% { opacity: 1; transform: none; filter: none; }
+        }
+        .ticket-reveal { animation: ticketReveal 0.75s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+        .ticket-tilt {
+            transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+
+        /* ---------- FAQ ---------- */
+        details.faq summary::-webkit-details-marker { display: none; }
+        details.faq summary { cursor: pointer; list-style: none; }
+        details.faq[open] .faq-icon { transform: rotate(45deg); }
+        .faq-icon { transition: transform 0.3s ease; }
+
+        /* ---------- Toast ---------- */
+        .toast {
+            position: fixed;
+            bottom: 1.25rem;
+            right: 1.25rem;
+            z-index: 90;
+            max-width: 22rem;
+            border-radius: 0.9rem;
+            padding: 0.9rem 1.1rem;
+            backdrop-filter: blur(16px);
+            animation: fadeUp 0.35s ease both;
+            font-weight: 600;
+            box-shadow: 0 10px 34px rgba(0, 0, 0, 0.55);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <!-- Background layers -->
+    <div class="space-bg" aria-hidden="true"></div>
+    <div class="nebula nebula-cyan" aria-hidden="true"></div>
+    <div class="nebula nebula-purple" aria-hidden="true"></div>
+    <div class="nebula nebula-gold" aria-hidden="true"></div>
+
+    <!-- ================= HEADER ================= -->
+    <header class="glass sticky top-0 z-50 px-5 md:px-8 py-3.5 flex items-center justify-between border-x-0 border-t-0">
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2.5">
+                <span class="font-orbitron font-black text-xl md:text-2xl tracking-[0.22em] text-white">NASA</span>
+                <span class="text-gold font-bold text-lg md:text-xl text-glow-gold">✕</span>
+                <span class="font-orbitron font-black text-lg md:text-xl tracking-[0.22em] gold-shimmer">STARDANCE</span>
+            </div>
+            <span class="hidden lg:inline-block text-[11px] bg-cyan-950/80 text-cyan-300 border border-cyan-500/30 px-3 py-1 rounded-full font-mono tracking-wider">
+                DEEP SPACE EXPLORATION DIVISION
+            </span>
+        </div>
+        <div class="flex items-center gap-3">
+            <span id="saveDot" class="w-1.5 h-1.5 rounded-full bg-gold shadow-[0_0_8px_rgba(255,215,0,0.9)] hidden" title="Auto-saved locally"></span>
+            <button onclick="openArchive()" class="hidden md:flex items-center gap-1.5 text-[10px] font-orbitron tracking-widest border border-gold/40 text-gold px-2.5 py-1 rounded-md hover:bg-gold/10 transition-all">
+                <i data-lucide="history" class="w-3.5 h-3.5"></i> ARCHIVE <span id="archiveCount" class="bg-gold/20 text-gold rounded-full px-1.5 text-[10px] leading-tight">0</span>
+            </button>
+            <div class="flex items-center gap-3 font-mono text-[11px] md:text-xs text-cyan-400">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_12px_rgba(52,211,153,0.9)]"></span>
+                <span class="hidden sm:inline tracking-wider">SYSTEM OPERATIONAL — ORBITAL TRAFFIC CLEAR</span>
+                <span id="utcClock" class="hidden md:inline bg-cyan-950/60 border border-cyan-500/25 px-2.5 py-1 rounded-md tracking-widest"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================= ONE-WAY SARCASTIC MODAL ================= -->
+    <div id="oneWayModal" class="fixed inset-0 z-[80] hidden items-center justify-center p-4 bg-black/85 backdrop-blur-md" onclick="if(event.target===this)closeOneWayModal()">
+        <div class="glass rounded-2xl max-w-lg w-full p-8 text-center space-y-5 border-red-500/50 shadow-[0_0_80px_rgba(239,68,68,0.25)] panel-enter">
+            <div class="font-orbitron font-black text-7xl md:text-8xl text-red-500 tracking-tighter animate-pulse" style="text-shadow:0 0 45px rgba(239,68,68,0.75)">NO</div>
+            <h3 class="font-orbitron font-bold text-base md:text-lg text-white tracking-wide">ONE-WAY FLIGHTS DENIED BY MISSION CONTROL</h3>
+            <p class="text-slate-300 text-sm md:text-[15px] leading-relaxed">
+                Nice try, pioneer! While marooning yourself on a desolate alien rock sounds like peak main-character energy,
+                NASA logistics strictly prohibits permanent orbital squatting. Unless you plan on paying rent to Martian dust mites,
+                you're coming back to Earth. <strong class="text-cyan-400">Round-trip selected for your own survival.</strong>
+            </p>
+            <button onclick="closeOneWayModal()" class="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-orbitron font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-red-900/50 tracking-wider">
+                UNDERSTOOD. I ACCEPT ROUND-TRIP.
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= MISSION ARCHIVE MODAL ================= -->
+    <div id="archiveModal" class="fixed inset-0 z-[85] hidden items-center justify-center p-4 bg-black/85 backdrop-blur-md" onclick="if(event.target===this)closeArchive()">
+        <div class="glass rounded-2xl max-w-2xl w-full p-6 space-y-4 border-cyan-500/30 panel-enter">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="font-orbitron font-bold text-lg text-white tracking-wide">MISSION ARCHIVE</h3>
+                    <p class="text-xs text-slate-400 font-mono mt-0.5">Issued boarding passes, stored locally on this device.</p>
+                </div>
+                <button onclick="closeArchive()" class="text-slate-400 hover:text-white transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div id="archiveList" class="space-y-3 max-h-[62vh] overflow-y-auto pr-1"></div>
+        </div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toastWrap" class="fixed bottom-5 right-5 z-[90] space-y-2 flex flex-col items-end"></div>
+
+    <!-- ================= MAIN ================= -->
+    <main class="max-w-5xl w-full mx-auto px-4 py-8 flex-grow">
+
+        <div class="text-center space-y-2 mb-8">
+            <h1 class="font-orbitron font-black text-2xl md:text-4xl text-white tracking-wide">
+                STARDANCE <span class="text-cyan-400 text-glow">PASSENGER PORTAL</span>
+            </h1>
+            <p class="text-slate-400 text-sm md:text-base">Reserve your commercial orbital berth. Authentic NASA certified trajectories only.</p>
+        </div>
+
+        <!-- ================= STEP INDICATOR ================= -->
+        <ol id="stepper" class="relative flex items-start justify-between mb-8 px-1 select-none">
+            <div class="absolute top-[1.3rem] left-0 right-0 h-0.5 bg-slate-800/80 rounded-full"></div>
+            <div id="stepProgress" class="absolute top-[1.3rem] left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-cyan-300 rounded-full transition-all duration-700" style="width:0%"></div>
+            <li class="step-item w-1/6 flex flex-col items-center gap-2" data-step="1">
+                <div class="step-circle">1</div><span class="step-label font-orbitron text-[9px] md:text-[10px] tracking-widest text-slate-500 text-center">DEPARTURE</span>
+            </li>
+            <li class="step-item w-1/6 flex flex-col items-center gap-2" data-step="2">
+                <div class="step-circle">2</div><span class="step-label font-orbitron text-[9px] md:text-[10px] tracking-widest text-slate-500 text-center">MISSION</span>
+            </li>
+            <li class="step-item w-1/6 flex flex-col items-center gap-2" data-step="3">
+                <div class="step-circle">3</div><span class="step-label font-orbitron text-[9px] md:text-[10px] tracking-widest text-slate-500 text-center">CATERING</span>
+            </li>
+            <li class="step-item w-1/6 flex flex-col items-center gap-2" data-step="4">
+                <div class="step-circle">4</div><span class="step-label font-orbitron text-[9px] md:text-[10px] tracking-widest text-slate-500 text-center">PASSENGER</span>
+            </li>
+            <li class="step-item w-1/6 flex flex-col items-center gap-2" data-step="5">
+                <div class="step-circle">5</div><span class="step-label font-orbitron text-[9px] md:text-[10px] tracking-widest text-slate-500 text-center">PAYMENT</span>
+            </li>
+            <li class="step-item w-1/6 flex flex-col items-center gap-2" data-step="6">
+                <div class="step-circle">6</div><span class="step-label font-orbitron text-[9px] md:text-[10px] tracking-widest text-slate-500 text-center">BOARDING PASS</span>
+            </li>
+        </ol>
+
+        <!-- ================= BOOKING CARD ================= -->
+        <div id="bookingCard" class="glass rounded-3xl p-5 md:p-10 space-y-8">
+
+            <!-- ============ STEP 1: DEPARTURE SETUP ============ -->
+            <section id="panel-1" class="step-panel space-y-6">
+                <div class="flex items-center gap-3">
+                    <span class="font-orbitron text-[11px] text-cyan-400 tracking-[0.25em] border border-cyan-500/30 bg-cyan-950/60 rounded-md px-2.5 py-1">STEP 01</span>
+                    <h2 class="font-orbitron font-bold text-xl text-white tracking-wide">DEPARTURE SETUP</h2>
+                </div>
+
+                <!-- Trip type -->
+                <div class="space-y-2.5">
+                    <label class="font-orbitron text-[11px] text-cyan-400 tracking-widest uppercase block">1 · Trip Trajectory</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button id="btnRoundTrip" type="button" onclick="selectTripType('round')" class="opt-card items-center justify-center !py-3.5 selected">
+                            <i data-lucide="repeat" class="w-5 h-5 text-cyan-400 shrink-0"></i>
+                            <span class="font-orbitron font-bold text-sm text-white tracking-wider">ROUND-TRIP <span class="text-cyan-400">(MANDATORY)</span></span>
+                            <span id="tripRoundCheck" class="ml-auto w-5 h-5 rounded-full bg-cyan-400 text-black flex items-center justify-center font-bold text-xs shrink-0">✓</span>
+                        </button>
+                        <button id="btnOneWay" type="button" onclick="selectTripType('oneway')" class="opt-card items-center justify-center !py-3.5 opacity-80 hover:opacity-100">
+                            <i data-lucide="arrow-right" class="w-5 h-5 text-slate-400 shrink-0"></i>
+                            <span class="font-orbitron font-bold text-sm text-slate-400 tracking-wider">ONE-WAY</span>
+                            <span class="text-[10px] font-mono text-red-400/80 ml-auto shrink-0">DENIED</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Origin -->
+                <div class="space-y-2.5">
+                    <label class="font-orbitron text-[11px] text-cyan-400 tracking-widest uppercase block">2 · Origin Station</label>
+                    <div class="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="globe" class="w-6 h-6 text-blue-400 shrink-0"></i>
+                            <div>
+                                <div class="font-orbitron font-bold text-white">EARTH</div>
+                                <div class="text-xs text-slate-400">Ground Station Alpha (KSC 39A)</div>
+                            </div>
+                        </div>
+                        <span class="text-[11px] text-emerald-400 bg-emerald-950/50 px-2.5 py-1 rounded border border-emerald-500/30 font-mono">CONFIRMED</span>
+                    </div>
+                </div>
+
+                <!-- Destination -->
+                <div class="space-y-3">
+                    <label class="font-orbitron text-[11px] text-cyan-400 tracking-widest uppercase block">3 · Target Destination</label>
+
+                    <div class="text-[11px] font-orbitron tracking-widest text-slate-500 border-b border-slate-800 pb-1.5">🪐 MARS COLONY</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button type="button" data-dest="mars" onclick="chooseDestination('mars')" class="dest-card">
+                            <i data-lucide="orbit" class="w-5 h-5 text-orange-300 shrink-0"></i>
+                            <span class="flex-1 min-w-0">
+                                <span class="block font-orbitron font-bold text-sm text-white">MARS — OLYMPUS BASE</span>
+                                <span class="block text-xs text-slate-400 truncate">Red Planet Landing Site</span>
+                            </span>
+                            <span class="text-[10px] font-mono text-orange-300/80 shrink-0">×1.25</span>
+                            <span class="dest-check w-5 h-5 rounded-full border border-slate-600 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                        </button>
+                    </div>
+
+                    <div class="text-[11px] font-orbitron tracking-widest text-slate-500 border-b border-slate-800 pb-1.5">🌙 THE MOON</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button type="button" data-dest="lunar_surface" onclick="chooseDestination('lunar_surface')" class="dest-card">
+                            <i data-lucide="moon" class="w-5 h-5 text-slate-300 shrink-0"></i>
+                            <span class="flex-1 min-w-0">
+                                <span class="block font-orbitron font-bold text-sm text-white">LUNAR SURFACE</span>
+                                <span class="block text-xs text-slate-400 truncate">Apollo / Artemis Heritage Sites</span>
+                            </span>
+                            <span class="text-[10px] font-mono text-cyan-300/70 shrink-0">×1.10</span>
+                            <span class="dest-check w-5 h-5 rounded-full border border-slate-600 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                        </button>
+                        <button type="button" data-dest="lunar_orbit" onclick="chooseDestination('lunar_orbit')" class="dest-card">
+                            <i data-lucide="orbit" class="w-5 h-5 text-slate-300 shrink-0"></i>
+                            <span class="flex-1 min-w-0">
+                                <span class="block font-orbitron font-bold text-sm text-white">LUNAR ORBIT</span>
+                                <span class="block text-xs text-slate-400 truncate">Artemis Flyby Loop</span>
+                            </span>
+                            <span class="text-[10px] font-mono text-cyan-300/70 shrink-0">×1.05</span>
+                            <span class="dest-check w-5 h-5 rounded-full border border-slate-600 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                        </button>
+                    </div>
+
+                    <div class="text-[11px] font-orbitron tracking-widest text-slate-500 border-b border-slate-800 pb-1.5">🛰️ LOW-EARTH ORBIT</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button type="button" data-dest="iss" onclick="chooseDestination('iss')" class="dest-card">
+                            <i data-lucide="satellite" class="w-5 h-5 text-cyan-300 shrink-0"></i>
+                            <span class="flex-1 min-w-0">
+                                <span class="block font-orbitron font-bold text-sm text-white">ISS — COMMERCIAL DECK</span>
+                                <span class="block text-xs text-slate-400 truncate">International Space Station</span>
+                            </span>
+                            <span class="text-[10px] font-mono text-emerald-300/70 shrink-0">×0.95</span>
+                            <span class="dest-check w-5 h-5 rounded-full border border-slate-600 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                        </button>
+                        <button type="button" data-dest="shuttle" onclick="chooseDestination('shuttle')" class="dest-card">
+                            <i data-lucide="rocket" class="w-5 h-5 text-slate-300 shrink-0"></i>
+                            <span class="flex-1 min-w-0">
+                                <span class="block font-orbitron font-bold text-sm text-white">SHUTTLE HERITAGE PATH</span>
+                                <span class="block text-xs text-slate-400 truncate">1981–2011 Relics Tour</span>
+                            </span>
+                            <span class="text-[10px] font-mono text-cyan-300/70 shrink-0">×1.00</span>
+                            <span class="dest-check w-5 h-5 rounded-full border border-slate-600 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                        </button>
+                        <button type="button" data-dest="skylab" onclick="chooseDestination('skylab')" class="dest-card">
+                            <i data-lucide="telescope" class="w-5 h-5 text-slate-300 shrink-0"></i>
+                            <span class="flex-1 min-w-0">
+                                <span class="block font-orbitron font-bold text-sm text-white">SKYLAB ORBIT</span>
+                                <span class="block text-xs text-slate-400 truncate">Orbital Platform</span>
+                            </span>
+                            <span class="text-[10px] font-mono text-emerald-300/70 shrink-0">×0.98</span>
+                            <span class="dest-check w-5 h-5 rounded-full border border-slate-600 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                        </button>
+                        <button type="button" data-dest="mir" onclick="chooseDestination('mir')" class="dest-card">
+                            <i data-lucide="satellite" class="w-5 h-5 text-slate-300 shrink-0"></i>
+                            <span class="flex-1 min-w-0">
+                                <span class="block font-orbitron font-bold text-sm text-white">MIR MEMORIAL TRACK</span>
+                                <span class="block text-xs text-slate-400 truncate">Mir Orbital Memorial</span>
+                            </span>
+                            <span class="text-[10px] font-mono text-emerald-300/70 shrink-0">×0.95</span>
+                            <span class="dest-check w-5 h-5 rounded-full border border-slate-600 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                        </button>
+                        <button type="button" data-dest="gemini" onclick="chooseDestination('gemini')" class="dest-card sm:col-span-2">
+                            <i data-lucide="zap" class="w-5 h-5 text-cyan-300 shrink-0"></i>
+                            <span class="flex-1 min-w-0">
+                                <span class="block font-orbitron font-bold text-sm text-white">MERCURY & GEMINI EXPRESS LOOP</span>
+                                <span class="block text-xs text-slate-400 truncate">Express Orbital Circuit</span>
+                            </span>
+                            <span class="text-[10px] font-mono text-emerald-300/70 shrink-0">×0.90</span>
+                            <span class="dest-check w-5 h-5 rounded-full border border-slate-600 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                        </button>
+                    </div>
+
+                    <div class="text-[11px] font-orbitron tracking-widest text-slate-500 border-b border-slate-800 pb-1.5">⛔ BLOCKED / UNAVAILABLE</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button type="button" disabled onclick="toast(BLOCKED_MSG.sun, 'error')" class="dest-card !border-red-500/25" title="Status: Thermal Destruction Guaranteed. Booking disabled for passenger safety.">
+                            <i data-lucide="sun" class="w-5 h-5 text-red-400 shrink-0"></i>
+                            <span class="flex-1 min-w-0">
+                                <span class="block font-orbitron font-bold text-sm text-red-300/80">THE SUN</span>
+                                <span class="block text-[11px] text-red-400/60">THERMAL DESTRUCTION GUARANTEED</span>
+                            </span>
+                            <i data-lucide="lock" class="w-4 h-4 text-slate-500 shrink-0"></i>
+                        </button>
+                        <button type="button" disabled onclick="toast(BLOCKED_MSG.outer, 'info')" class="dest-card" title="UPCOMING / TECH CLEARANCE PENDING — Artemis XI Required.">
+                            <i data-lucide="globe" class="w-5 h-5 text-slate-500 shrink-0"></i>
+                            <span class="flex-1 min-w-0">
+                                <span class="block font-orbitron font-bold text-sm text-slate-400">JUPITER</span>
+                                <span class="block text-[11px] text-slate-500">UPCOMING / TECH CLEARANCE PENDING</span>
+                            </span>
+                            <i data-lucide="lock" class="w-4 h-4 text-slate-600 shrink-0"></i>
+                        </button>
+                        <button type="button" disabled onclick="toast(BLOCKED_MSG.outer, 'info')" class="dest-card" title="UPCOMING / TECH CLEARANCE PENDING — Artemis XI Required.">
+                            <i data-lucide="globe" class="w-5 h-5 text-slate-500 shrink-0"></i>
+                            <span class="flex-1 min-w-0">
+                                <span class="block font-orbitron font-bold text-sm text-slate-400">SATURN</span>
+                                <span class="block text-[11px] text-slate-500">UPCOMING / TECH CLEARANCE PENDING</span>
+                            </span>
+                            <i data-lucide="lock" class="w-4 h-4 text-slate-600 shrink-0"></i>
+                        </button>
+                        <button type="button" disabled onclick="toast(BLOCKED_MSG.outer, 'info')" class="dest-card" title="UPCOMING / TECH CLEARANCE PENDING — Artemis XI Required.">
+                            <i data-lucide="globe" class="w-5 h-5 text-slate-500 shrink-0"></i>
+                            <span class="flex-1 min-w-0">
+                                <span class="block font-orbitron font-bold text-sm text-slate-400">URANUS</span>
+                                <span class="block text-[11px] text-slate-500">UPCOMING / TECH CLEARANCE PENDING</span>
+                            </span>
+                            <i data-lucide="lock" class="w-4 h-4 text-slate-600 shrink-0"></i>
+                        </button>
+                        <button type="button" disabled onclick="toast(BLOCKED_MSG.outer, 'info')" class="dest-card" title="UPCOMING / TECH CLEARANCE PENDING — Artemis XI Required.">
+                            <i data-lucide="globe" class="w-5 h-5 text-slate-500 shrink-0"></i>
+                            <span class="flex-1 min-w-0">
+                                <span class="block font-orbitron font-bold text-sm text-slate-400">NEPTUNE</span>
+                                <span class="block text-[11px] text-slate-500">UPCOMING / TECH CLEARANCE PENDING</span>
+                            </span>
+                            <i data-lucide="lock" class="w-4 h-4 text-slate-600 shrink-0"></i>
+                        </button>
+                        <button type="button" disabled onclick="toast(BLOCKED_MSG.outer, 'info')" class="dest-card" title="UPCOMING / TECH CLEARANCE PENDING — Artemis XI Required.">
+                            <i data-lucide="globe" class="w-5 h-5 text-slate-500 shrink-0"></i>
+                            <span class="flex-1 min-w-0">
+                                <span class="block font-orbitron font-bold text-sm text-slate-400">PLUTO</span>
+                                <span class="block text-[11px] text-slate-500">UPCOMING / TECH CLEARANCE PENDING</span>
+                            </span>
+                            <i data-lucide="lock" class="w-4 h-4 text-slate-600 shrink-0"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dates -->
+                <div id="dateRow" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-xs text-slate-400 block" for="departDate">Departure Date (Earth T+0)</label>
+                        <input type="date" id="departDate" class="inp font-mono" onchange="onDepartChange()">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs text-slate-400 block" for="returnDate">Return Date (Mandatory Round-Trip)</label>
+                        <input type="date" id="returnDate" class="inp font-mono" onchange="onReturnChange()">
+                    </div>
+                </div>
+
+                <!-- Travelers -->
+                <div class="space-y-2.5">
+                    <label class="font-orbitron text-[11px] text-cyan-400 tracking-widest uppercase block">4 · Travelers <span class="text-slate-600 normal-case font-sans">(max 4 per manifest)</span></label>
+                    <div id="travelerRow" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <button type="button" data-count="1" onclick="setTravelers(1)" class="opt-card items-center justify-center !py-3 selected"><i data-lucide="user" class="w-4 h-4 text-cyan-400 shrink-0"></i><span class="font-orbitron font-bold text-sm text-white">01</span></button>
+                        <button type="button" data-count="2" onclick="setTravelers(2)" class="opt-card items-center justify-center !py-3"><i data-lucide="users" class="w-4 h-4 text-slate-400 shrink-0"></i><span class="font-orbitron font-bold text-sm text-slate-300">02</span></button>
+                        <button type="button" data-count="3" onclick="setTravelers(3)" class="opt-card items-center justify-center !py-3"><i data-lucide="users" class="w-4 h-4 text-slate-400 shrink-0"></i><span class="font-orbitron font-bold text-sm text-slate-300">03</span></button>
+                        <button type="button" data-count="4" onclick="setTravelers(4)" class="opt-card items-center justify-center !py-3"><i data-lucide="users" class="w-4 h-4 text-slate-400 shrink-0"></i><span class="font-orbitron font-bold text-sm text-slate-300">04</span></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ STEP 2: MISSION REQUIREMENTS ============ -->
+            <section id="panel-2" class="step-panel hidden space-y-6">
+                <div class="flex items-center gap-3">
+                    <span class="font-orbitron text-[11px] text-cyan-400 tracking-[0.25em] border border-cyan-500/30 bg-cyan-950/60 rounded-md px-2.5 py-1">STEP 02</span>
+                    <h2 class="font-orbitron font-bold text-xl text-white tracking-wide">MISSION REQUIREMENTS</h2>
+                </div>
+
+                <div class="glass !bg-cyan-950/30 border-cyan-500/20 rounded-xl p-4 text-sm text-slate-300 flex items-start gap-3">
+                    <i data-lucide="shield-alert" class="w-5 h-5 text-cyan-400 shrink-0 mt-0.5"></i>
+                    <p><strong class="text-cyan-300 font-orbitron text-xs tracking-widest">NASA-STD-2026 · PRE-FLIGHT CERTIFICATION</strong><br>
+                    All passengers must declare microgravity readiness before mission clearance is issued.</p>
+                </div>
+
+                <div class="space-y-2.5">
+                    <label class="font-orbitron text-[11px] text-cyan-400 tracking-widest uppercase block">Spaceflight Readiness Assessment</label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <label class="opt-card selected" onclick="setTraining('no')" id="optNoTraining">
+                            <input type="radio" name="training" value="no" checked class="accent-cyan-400 w-4 h-4 mt-1 hidden">
+                            <i data-lucide="shield-alert" class="w-6 h-6 text-red-400 shrink-0"></i>
+                            <span class="flex-1">
+                                <span class="block font-orbitron font-bold text-sm text-white">NO PRIOR TRAINING</span>
+                                <span class="block text-xs text-slate-400">+ $3,000,000,000 USD — Centrifuges, Zero-G Vomit Comet runs & suit isolation testing included.</span>
+                            </span>
+                            <span class="opt-check w-5 h-5 rounded-full bg-red-400 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                        </label>
+                        <label class="opt-card" onclick="setTraining('yes')" id="optYesTraining">
+                            <input type="radio" name="training" value="yes" class="accent-cyan-400 w-4 h-4 mt-1 hidden">
+                            <i data-lucide="shield-check" class="w-6 h-6 text-emerald-400 shrink-0"></i>
+                            <span class="flex-1">
+                                <span class="block font-orbitron font-bold text-sm text-white">YES, NASA CERTIFIED</span>
+                                <span class="block text-xs text-slate-400">+ $2,000,000,000 USD — Certification verification & safety clearance fee.</span>
+                            </span>
+                            <span class="opt-check w-5 h-5 rounded-full bg-emerald-400 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="space-y-2.5">
+                    <label class="font-orbitron text-[11px] text-cyan-400 tracking-widest uppercase block">Mission Class & Cabin Tier</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <label class="opt-card selected" onclick="setMissionClass('standard')" id="clsStandard">
+                            <i data-lucide="rocket" class="w-5 h-5 text-slate-300 shrink-0"></i>
+                            <span class="flex-1">
+                                <span class="block font-orbitron font-bold text-sm text-white">STANDARD BERTH</span>
+                                <span class="block text-xs text-slate-400">Standard amenities · ×1.00</span>
+                            </span>
+                            <span class="opt-check w-5 h-5 rounded-full bg-slate-400 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                        </label>
+                        <label class="opt-card" onclick="setMissionClass('commander')" id="clsCommander">
+                            <i data-lucide="crown" class="w-5 h-5 text-cyan-300 shrink-0"></i>
+                            <span class="flex-1">
+                                <span class="block font-orbitron font-bold text-sm text-white">COMMANDER CLASS</span>
+                                <span class="block text-xs text-slate-400">Priority boarding · upgraded berth · ×1.15</span>
+                            </span>
+                            <span class="opt-check w-5 h-5 rounded-full bg-cyan-400 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                        </label>
+                        <label class="opt-card" onclick="setMissionClass('ambassador')" id="clsAmbassador">
+                            <i data-lucide="gem" class="w-5 h-5 text-gold shrink-0"></i>
+                            <span class="flex-1">
+                                <span class="block font-orbitron font-bold text-sm text-white">AMBASSADOR SUITE</span>
+                                <span class="block text-xs text-slate-400">Private observation dome · zero-G chef · ×1.30</span>
+                            </span>
+                            <span class="opt-check w-5 h-5 rounded-full bg-gold text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="text-xs text-slate-500 font-mono flex items-center gap-2">
+                    <i data-lucide="info" class="w-4 h-4"></i>
+                    <span>Zero-G acclimatization is mandatory for all passengers regardless of certification status.</span>
+                </div>
+            </section>
+
+            <!-- ============ STEP 3: LIFE SUPPORT & CATERING ============ -->
+            <section id="panel-3" class="step-panel hidden space-y-6">
+                <div class="flex items-center gap-3">
+                    <span class="font-orbitron text-[11px] text-cyan-400 tracking-[0.25em] border border-cyan-500/30 bg-cyan-950/60 rounded-md px-2.5 py-1">STEP 03</span>
+                    <h2 class="font-orbitron font-bold text-xl text-white tracking-wide">LIFE SUPPORT & CATERING</h2>
+                </div>
+
+                <p class="text-sm text-slate-300">Select your specialized microgravity cuisine. Each item is priced at a flat <strong class="text-cyan-300">$10,000,000 USD</strong> and is served in NASA-certified zero-G packaging.</p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label class="opt-card" onclick="toggleFood(this, 'food1')">
+                        <input type="checkbox" id="food1" class="hidden" onchange="updatePrice()">
+                        <span class="text-2xl shrink-0">🍱</span>
+                        <span class="flex-1">
+                            <span class="block font-orbitron font-bold text-sm text-white">DEHYDRATED WAGYU & TRUFFLE PASTE</span>
+                            <span class="block text-xs text-slate-400">Rehydrated with orbital-grade spring water.</span>
+                            <span class="block text-xs text-cyan-300 font-mono mt-1">$10,000,000</span>
+                        </span>
+                        <span class="opt-check w-5 h-5 rounded-full bg-cyan-400 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                    </label>
+                    <label class="opt-card" onclick="toggleFood(this, 'food2')">
+                        <input type="checkbox" id="food2" class="hidden" onchange="updatePrice()">
+                        <span class="text-2xl shrink-0">🍣</span>
+                        <span class="flex-1">
+                            <span class="block font-orbitron font-bold text-sm text-white">ZERO-G HYDROPONIC SUSHI PLATTER</span>
+                            <span class="block text-xs text-slate-400">Cultivated aboard the orbital greenhouse.</span>
+                            <span class="block text-xs text-cyan-300 font-mono mt-1">$10,000,000</span>
+                        </span>
+                        <span class="opt-check w-5 h-5 rounded-full bg-cyan-400 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                    </label>
+                    <label class="opt-card" onclick="toggleFood(this, 'food3')">
+                        <input type="checkbox" id="food3" class="hidden" onchange="updatePrice()">
+                        <span class="text-2xl shrink-0">🍦</span>
+                        <span class="flex-1">
+                            <span class="block font-orbitron font-bold text-sm text-white">LIQUID NITROGEN VANILLA ICE CREAM</span>
+                            <span class="block text-xs text-slate-400">Served at −196 °C, zero drip physics.</span>
+                            <span class="block text-xs text-cyan-300 font-mono mt-1">$10,000,000</span>
+                        </span>
+                        <span class="opt-check w-5 h-5 rounded-full bg-cyan-400 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                    </label>
+                    <label class="opt-card" onclick="toggleFood(this, 'food4')">
+                        <input type="checkbox" id="food4" class="hidden" onchange="updatePrice()">
+                        <span class="text-2xl shrink-0">🍷</span>
+                        <span class="flex-1">
+                            <span class="block font-orbitron font-bold text-sm text-white">PRESSURIZED ELECTROLYTE CHAMPAGNE</span>
+                            <span class="block text-xs text-slate-400">Syringe-dispensed, hydration + celebration.</span>
+                            <span class="block text-xs text-cyan-300 font-mono mt-1">$10,000,000</span>
+                        </span>
+                        <span class="opt-check w-5 h-5 rounded-full bg-cyan-400 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                    </label>
+                </div>
+
+                <!-- Mission extras -->
+                <div class="space-y-3 pt-2 border-t border-slate-800">
+                    <label class="font-orbitron text-[11px] text-cyan-400 tracking-widest uppercase block">Mission Extras <span class="text-slate-600 normal-case font-sans">— optional add-ons</span></label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label class="opt-card" onclick="toggleExtra(this,'insurance')">
+                            <input type="checkbox" id="insurance" class="hidden">
+                            <i data-lucide="shield" class="w-5 h-5 text-emerald-400 shrink-0"></i>
+                            <span class="flex-1">
+                                <span class="block font-orbitron font-bold text-sm text-white">ORBITAL ABORT INSURANCE</span>
+                                <span class="block text-xs text-slate-400">Full refund if your booster sneezes mid-flight.</span>
+                                <span class="block text-xs text-cyan-300 font-mono mt-1">$500,000,000</span>
+                            </span>
+                            <span class="opt-check w-5 h-5 rounded-full bg-cyan-400 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                        </label>
+                        <label class="opt-card" onclick="toggleExtra(this,'priority')">
+                            <input type="checkbox" id="priority" class="hidden">
+                            <i data-lucide="zap" class="w-5 h-5 text-amber-300 shrink-0"></i>
+                            <span class="flex-1">
+                                <span class="block font-orbitron font-bold text-sm text-white">PRIORITY BOARDING LANE</span>
+                                <span class="block text-xs text-slate-400">Skip the 12-hour customs hologram queue.</span>
+                                <span class="block text-xs text-cyan-300 font-mono mt-1">$50,000,000</span>
+                            </span>
+                            <span class="opt-check w-5 h-5 rounded-full bg-cyan-400 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                        </label>
+                        <label class="opt-card" onclick="toggleExtra(this,'archive')">
+                            <input type="checkbox" id="archive" class="hidden">
+                            <i data-lucide="gem" class="w-5 h-5 text-violet-300 shrink-0"></i>
+                            <span class="flex-1">
+                                <span class="block font-orbitron font-bold text-sm text-white">MEMORY ARCHIVE CRYSTAL</span>
+                                <span class="block text-xs text-slate-400">Your zero-G highlights etched in plasma glass.</span>
+                                <span class="block text-xs text-cyan-300 font-mono mt-1">$25,000,000</span>
+                            </span>
+                            <span class="opt-check w-5 h-5 rounded-full bg-cyan-400 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                        </label>
+                        <label class="opt-card" onclick="toggleExtra(this,'comms')">
+                            <input type="checkbox" id="comms" class="hidden">
+                            <i data-lucide="radio" class="w-5 h-5 text-rose-300 shrink-0"></i>
+                            <span class="flex-1">
+                                <span class="block font-orbitron font-bold text-sm text-white">INTERPLANETARY COMMS BUNDLE</span>
+                                <span class="block text-xs text-slate-400">Video-call home across 400M km, latency included.</span>
+                                <span class="block text-xs text-cyan-300 font-mono mt-1">$100,000,000</span>
+                            </span>
+                            <span class="opt-check w-5 h-5 rounded-full bg-cyan-400 text-black text-xs font-bold items-center justify-center hidden shrink-0">✓</span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ STEP 4: PASSENGER DETAILS ============ -->
+            <section id="panel-4" class="step-panel hidden space-y-6">
+                <div class="flex items-center gap-3">
+                    <span class="font-orbitron text-[11px] text-cyan-400 tracking-[0.25em] border border-cyan-500/30 bg-cyan-950/60 rounded-md px-2.5 py-1">STEP 04</span>
+                    <h2 class="font-orbitron font-bold text-xl text-white tracking-wide">PASSENGER MANIFEST & AUTHORIZATION</h2>
+                </div>
+
+                <div class="glass !bg-emerald-950/30 border-emerald-500/25 rounded-xl p-4 text-sm text-slate-300 flex items-start gap-3">
+                    <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400 shrink-0 mt-0.5"></i>
+                    <p><strong class="text-emerald-300 font-orbitron text-xs tracking-widest">PRIVACY PROTOCOL 101 · STRICT NO-PII POLICY</strong><br>
+                    Stardance never requests your email, phone number, age, home address, or SSN. Your identity remains in the manifest — not in a database.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div id="passengerList" class="space-y-3"></div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="md:col-span-2 relative">
+                            <label class="text-xs text-slate-400 block mb-1.5" for="cardNumber">Card Number <span class="text-slate-600">(Simulated — Numbers Only, 16 max)</span></label>
+                            <input type="text" id="cardNumber" oninput="formatCard(this)" maxlength="19" placeholder="4000 0000 0000 0000" autocomplete="off" inputmode="numeric"
+                                class="inp font-mono tracking-widest pr-28">
+                            <span id="cardBadge" class="hidden absolute right-2.5 top-[2.35rem] font-orbitron font-bold text-[10px] px-2 py-1 rounded-md border items-center gap-1.5">
+                                <span id="cardBadgeDot" class="w-2 h-2 rounded-full inline-block"></span>
+                                <span id="cardBadgeText">VISA</span>
+                            </span>
+                            <p id="cardErr" class="hidden text-red-400 text-xs mt-1.5 font-mono">✕ Card number must be 13–16 digits.</p>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 block mb-1.5" for="cvv">CVV <span class="text-slate-600">(3–4 digits)</span></label>
+                            <input type="password" id="cvv" maxlength="4" oninput="this.value=this.value.replace(/[^0-9]/g,'')" placeholder="•••" autocomplete="off" inputmode="numeric"
+                                class="inp font-mono text-center tracking-widest">
+                            <p id="cvvErr" class="hidden text-red-400 text-xs mt-1.5 font-mono">✕ CVV must be 3–4 digits.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ STEP 5: SIMULATED PAYMENT ============ -->
+            <section id="panel-5" class="step-panel hidden space-y-6">
+                <div class="flex items-center gap-3">
+                    <span class="font-orbitron text-[11px] text-cyan-400 tracking-[0.25em] border border-cyan-500/30 bg-cyan-950/60 rounded-md px-2.5 py-1">STEP 05</span>
+                    <h2 class="font-orbitron font-bold text-xl text-white tracking-wide">SIMULATED PAYMENT</h2>
+                </div>
+
+                <div class="glass !bg-cosmos/60 rounded-2xl divide-y divide-slate-800">
+                    <div class="p-5 flex items-center justify-between text-sm">
+                        <span class="text-slate-400">Base Ticket Fare <span class="text-slate-600" id="baseFareMeta">($3B × 1 traveler)</span></span>
+                        <span class="font-mono text-white" id="baseFareValue">$3,000,000,000</span>
+                    </div>
+                    <div class="p-5 flex items-center justify-between text-sm">
+                        <span class="text-slate-400" id="destFeeLabel">Destination Trajectory Factor</span>
+                        <span class="font-mono text-cyan-300" id="destFeeValue">×1.25</span>
+                    </div>
+                    <div class="p-5 flex items-center justify-between text-sm">
+                        <span class="text-slate-400" id="classFeeLabel">Mission Class</span>
+                        <span class="font-mono text-white" id="classFeeValue">INCLUDED</span>
+                    </div>
+                    <div class="p-5 flex items-center justify-between text-sm">
+                        <span class="text-slate-400" id="trainingFeeLabel">Training & Certification Surcharge</span>
+                        <span class="font-mono text-white" id="trainingFeeValue">+ $3,000,000,000</span>
+                    </div>
+                    <div class="p-5 flex items-center justify-between text-sm">
+                        <span class="text-slate-400">In-Flight Catering <span class="text-slate-600" id="cateringCount">(0 items)</span></span>
+                        <span class="font-mono text-white" id="cateringFeeValue">+ $0</span>
+                    </div>
+                    <div class="p-5 flex items-center justify-between text-sm">
+                        <span class="text-slate-400">Mission Extras <span class="text-slate-600" id="extrasCount">(none)</span></span>
+                        <span class="font-mono text-white" id="extrasFeeValue">+ $0</span>
+                    </div>
+                    <div class="p-5 flex items-center justify-between gap-4">
+                        <span class="font-orbitron text-xs tracking-widest text-slate-300">TOTAL MISSION COST <span class="text-slate-600 font-sans font-normal" id="totalMeta">(1 passenger)</span></span>
+                        <span class="flex items-center gap-3">
+                            <span class="flex rounded-lg border border-slate-700 overflow-hidden text-[10px] font-orbitron shrink-0">
+                                <button type="button" onclick="setUnit('usd')" id="unitUsd" class="px-2 py-1.5 bg-cyan-500/20 text-cyan-300 border-r border-slate-700">USD</button>
+                                <button type="button" onclick="setUnit('stardust')" id="unitStar" class="px-2 py-1.5 text-slate-500 hover:text-gold">★STARDUST</button>
+                            </span>
+                            <span id="priceTotal" class="font-orbitron font-black text-2xl md:text-3xl text-cyan-400 text-glow tracking-tight">$6,000,000,000 USD</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-stretch md:items-center gap-5">
+                    <div class="flex-1 text-xs text-slate-500 font-mono leading-relaxed">
+                        <p>⚠ SIMULATED CHECKOUT — no real funds are charged.</p>
+                        <p>By authorizing, you accept the Stardance Passenger Covenant & NASA-STD-2026 terms.</p>
+                    </div>
+                    <button id="btnPay" type="button" onclick="processPayment()" class="btn-cyan glow-pulse flex items-center justify-center gap-3 shrink-0">
+                        <span id="payIcon" class="relative w-11 h-11 flex items-center justify-center shrink-0">
+                            <span id="paySpinner" class="pay-spinner"></span>
+                            <svg id="payCheck" class="pay-check" viewBox="0 0 52 52">
+                                <circle class="c1" cx="26" cy="26" r="25" fill="none"/>
+                                <path class="c2" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                            </svg>
+                        </span>
+                        <span id="payLabel" class="text-left leading-tight">AUTHORIZE<br>$6,000,000,000 USD<br>PAYMENT</span>
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- Step navigation footer -->
+        <div id="stepNav" class="flex items-center justify-between gap-4 mt-6">
+            <button id="btnBack" type="button" onclick="goToStep(currentStep - 1)" class="btn-ghost hidden items-center gap-2">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> BACK
+            </button>
+            <span class="hidden md:block text-xs font-mono text-slate-600 tracking-widest" id="navHint"></span>
+            <button id="btnNext" type="button" onclick="goToStep(currentStep + 1)" class="btn-cyan flex items-center gap-2 ml-auto">
+                <span id="btnNextLabel">CONTINUE TO MISSION REQUIREMENTS</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <!-- ================= MISSION FAQ ================= -->
+        <div class="glass rounded-3xl p-5 md:p-8 mt-10 space-y-4">
+            <div class="flex items-center gap-3">
+                <span class="font-orbitron text-[11px] text-gold tracking-[0.25em] border border-gold/30 bg-amber-950/40 rounded-md px-2.5 py-1">MISSION CONTROL FAQ</span>
+                <h2 class="font-orbitron font-bold text-lg text-white tracking-wide">FREQUENTLY ASKED ORBITAL QUESTIONS</h2>
+            </div>
+            <details class="faq glass rounded-xl px-5 py-4">
+                <summary class="flex items-center justify-between gap-4">
+                    <span class="text-sm text-slate-200 font-orbitron tracking-wide">What happens if I miss my launch window?</span>
+                    <span class="faq-icon text-cyan-400 text-2xl leading-none shrink-0">+</span>
+                </summary>
+                <p class="text-sm text-slate-400 mt-3 leading-relaxed">Missed windows are rebooked automatically on the next synodic alignment. A $250M rescheduling fee applies, payable in stardust or one (1) first-born lunar rock.</p>
+            </details>
+            <details class="faq glass rounded-xl px-5 py-4">
+                <summary class="flex items-center justify-between gap-4">
+                    <span class="text-sm text-slate-200 font-orbitron tracking-wide">Is the Vomit Comet really included?</span>
+                    <span class="faq-icon text-cyan-400 text-2xl leading-none shrink-0">+</span>
+                </summary>
+                <p class="text-sm text-slate-400 mt-3 leading-relaxed">Yes. Every untrained passenger receives three (3) reduced-gravity parabola passes. Keep your breakfast down twice in a row and NASA awards you a commemorative sticker.</p>
+            </details>
+            <details class="faq glass rounded-xl px-5 py-4">
+                <summary class="flex items-center justify-between gap-4">
+                    <span class="text-sm text-slate-200 font-orbitron tracking-wide">How much luggage can I bring?</span>
+                    <span class="faq-icon text-cyan-400 text-2xl leading-none shrink-0">+</span>
+                </summary>
+                <p class="text-sm text-slate-400 mt-3 leading-relaxed">Up to 50 kg per passenger in a sealed vacuum canister. Any object that drifts away mid-transfer is legally classified as a donation to the orbital ecosystem.</p>
+            </details>
+            <details class="faq glass rounded-xl px-5 py-4">
+                <summary class="flex items-center justify-between gap-4">
+                    <span class="text-sm text-slate-200 font-orbitron tracking-wide">Do you collect my personal data?</span>
+                    <span class="faq-icon text-cyan-400 text-2xl leading-none shrink-0">+</span>
+                </summary>
+                <p class="text-sm text-slate-400 mt-3 leading-relaxed">Never. Stardance does not request email, phone number, age, home address, or SSN. Your manifest exists only in this browser — and on your titanium pass.</p>
+            </details>
+            <details class="faq glass rounded-xl px-5 py-4">
+                <summary class="flex items-center justify-between gap-4">
+                    <span class="text-sm text-slate-200 font-orbitron tracking-wide">How do refunds work?</span>
+                    <span class="faq-icon text-cyan-400 text-2xl leading-none shrink-0">+</span>
+                </summary>
+                <p class="text-sm text-slate-400 mt-3 leading-relaxed">Refunds are processed in 6–8 business months and delivered by carrier pigeon to your nearest licensed spaceport. Abort insurance expedites this to 4–6 months.</p>
+            </details>
+        </div>
+
+        <!-- ================= DIGITAL BOARDING PASS ================= -->
+        <div id="ticketSection" class="hidden mt-2">
+            <div id="ticketCard" class="ticket-titanium ticket-tilt p-6 md:p-10 space-y-7">
+                <!-- Ticket header -->
+                <div class="flex flex-wrap items-start justify-between gap-4 border-b border-cyan-500/25 pb-6">
+                    <div>
+                        <span class="bg-cyan-500/20 text-cyan-300 font-mono text-[11px] px-3 py-1 rounded-full border border-cyan-500/40 tracking-wider">OFFICIAL ORBITAL BOARDING PASS</span>
+                        <h2 class="font-orbitron font-black text-2xl md:text-3xl text-white mt-3 tracking-wide">STARDANCE <span class="text-cyan-400 text-glow">MISSION PASS</span></h2>
+                        <p class="text-xs text-slate-400 font-mono mt-1">TITANIUM-SERIES · NASA-STD-2026 CLEARED</p>
+                        <p id="ticketMotto" class="text-[11px] text-gold/80 font-orbitron tracking-widest mt-1.5"></p>
+                    </div>
+                    <div class="text-right">
+                        <div id="ticketMissionCode" class="font-orbitron font-bold text-lg text-cyan-400 font-mono">NASA-STD-2026</div>
+                        <div class="text-xs text-emerald-400 font-mono mt-1 tracking-widest">STATUS: CONFIRMED</div>
+                        <div id="ticketMissionDate" class="text-xs text-slate-400 font-mono mt-1"></div>
+                        <div id="ticketCountdown" class="text-xs text-gold font-mono mt-1.5 tracking-widest"></div>
+                    </div>
+                </div>
+
+                <!-- Ticket fields -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 font-mono text-sm">
+                    <div>
+                        <div class="text-[11px] text-slate-400 tracking-widest">PASSENGER NAME</div>
+                        <div id="ticketName" class="font-orbitron font-bold text-base md:text-lg text-white mt-1">COMMANDER —</div>
+                    </div>
+                    <div>
+                        <div class="text-[11px] text-slate-400 tracking-widest">ASSIGNED SPACECRAFT</div>
+                        <div id="ticketShuttle" class="font-orbitron font-bold text-base md:text-lg text-cyan-300 mt-1">—</div>
+                    </div>
+                    <div>
+                        <div class="text-[11px] text-slate-400 tracking-widest">BERTH / SEAT</div>
+                        <div id="ticketSeat" class="font-orbitron font-bold text-base md:text-lg text-white mt-1">—</div>
+                    </div>
+                    <div>
+                        <div class="text-[11px] text-slate-400 tracking-widest">LAUNCH COMPLEX</div>
+                        <div class="font-orbitron font-bold text-sm text-white mt-1">SLC-39A, KENNEDY SPACE CENTER</div>
+                    </div>
+                    <div>
+                        <div class="text-[11px] text-slate-400 tracking-widest">TARGET DESTINATION</div>
+                        <div id="ticketDestination" class="font-orbitron font-bold text-sm text-cyan-300 mt-1">—</div>
+                    </div>
+                    <div>
+                        <div class="text-[11px] text-slate-400 tracking-widest">AMOUNT PAID</div>
+                        <div id="ticketPrice" class="font-orbitron font-bold text-sm text-emerald-400 mt-1">—</div>
+                    </div>
+                </div>
+
+                <div id="ticketManifest" class="hidden glass !bg-cyan-950/20 border-cyan-500/15 rounded-xl p-4 text-xs text-slate-300 font-mono">
+                    <div class="text-[10px] text-cyan-400 tracking-widest mb-2">CREW MANIFEST</div>
+                    <div id="ticketManifestList" class="flex flex-wrap gap-x-6 gap-y-1.5"></div>
+                </div>
+
+                <div id="ticketChips" class="flex flex-wrap gap-2"></div>
+
+                <div class="glass !bg-cyan-950/25 border-cyan-500/20 rounded-xl p-4 text-xs text-slate-300 font-mono flex items-center gap-3">
+                    <i data-lucide="orbit" class="w-4 h-4 text-cyan-400 shrink-0"></i>
+                    <span id="ticketOrbit">Orbit details pending.</span>
+                </div>
+
+                <!-- Perforation -->
+                <div class="ticket-perf"></div>
+
+                <!-- QR + barcode + download -->
+                <div class="flex flex-col md:flex-row items-center gap-6">
+                    <div class="flex items-center gap-4">
+                        <div id="qrBox" class="bg-white p-2 rounded-xl w-28 h-28 flex items-center justify-center shadow-[0_0_30px_rgba(0,240,255,0.25)]">
+                            <div id="qrRender" class="flex items-center justify-center w-full h-full"></div>
+                        </div>
+                        <div class="space-y-1.5 max-w-[200px]">
+                            <div class="text-[10px] text-slate-400 font-mono tracking-widest">SCAN TO VERIFY</div>
+                            <div id="ticketBarcode" class="barcode"></div>
+                            <div id="ticketBarcodeText" class="text-[10px] font-mono text-slate-400 tracking-[0.25em]"></div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-3 md:ml-auto w-full md:w-auto">
+                        <button onclick="copyMissionCode()" class="btn-ghost flex items-center justify-center gap-2 text-sm">
+                            <i data-lucide="copy" class="w-4 h-4"></i> COPY CODE
+                        </button>
+                        <button onclick="downloadPass()" class="btn-ghost flex items-center justify-center gap-2 text-sm">
+                            <i data-lucide="download" class="w-4 h-4"></i> DOWNLOAD PASS (IMAGE)
+                        </button>
+                        <button onclick="bookAnother()" class="btn-cyan flex items-center justify-center gap-2 text-sm">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i> BOOK ANOTHER MISSION
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <p class="text-center text-[11px] text-slate-600 font-mono mt-4 tracking-wider">BOARDING IN 42 HOURS · REPORT TO GATE 39A · BRING YOUR VOMIT COMET SURVIVOR BADGE</p>
+        </div>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="border-t border-slate-800/80 mt-8 p-6 text-center text-slate-500 text-xs font-mono space-y-1">
+        <p>© 2026 NASA × STARDANCE INTERPLANETARY TRANSPORTATION DIVISION. ALL RIGHTS RESERVED.</p>
+        <p class="text-slate-700">Simulation for demonstration purposes only — no real funds, launches, or Martian real estate are involved.</p>
+    </footer>
+
+    <!-- ================= SCRIPT ================= -->
+    <script>
+        'use strict';
+
+        const $ = (id) => document.getElementById(id);
+        let currentStep = 1;
+        let paying = false;
+
+        const state = {
+            trip: 'round',
+            unit: 'usd',
+            dest: 'mars',
+            depart: '',
+            ret: '',
+            training: 'no',
+            foods: new Set(),
+            count: 1,
+            passengers: [''],
+            missionClass: 'standard',
+            extras: new Set(),
+            name: '',
+            cardDigits: '',
+            cvv: '',
+            network: '',
+            spacecraft: '',
+            seat: '',
+            missionCode: '',
+            orbit: '',
+            destLabel: ''
+        };
+
+        let lastTicket = null;          // last rendered pass (for downloads / archive)
+        let savedPasses = [];           // issued-pass archive
+        let lastTotalNum = 6000000000;  // for count-up animation
+        let priceAnim = null;
+
+        const BASE_FARE = 3000000000;            // $3B
+        const TRAIN_NO = 3000000000;             // $3B surcharge
+        const TRAIN_YES = 2000000000;            // $2B verification
+        const FOOD_PRICE = 10000000;             // $10M each
+
+        const DEST_META = {
+            mars:         { label: 'MARS — OLYMPUS BASE',            orbit: 'Trans-Mars Injection · Olympus Base Landing Site · ETA 6 months', factor: 1.25 },
+            lunar_surface:{ label: 'LUNAR SURFACE',                  orbit: 'Trans-Lunar Injection · Apollo/Artemis Heritage Site · ETA 3 days', factor: 1.10 },
+            lunar_orbit:  { label: 'LUNAR ORBIT — FLYBY LOOP',       orbit: 'Lunar Free-Return Trajectory · Artemis Flyby Loop · ETA 3 days', factor: 1.05 },
+            iss:          { label: 'ISS — COMMERCIAL DECK',          orbit: 'LEO 408 km · 51.6° inclination · Rendezvous ETA 8 hours', factor: 0.95 },
+            shuttle:      { label: 'SHUTTLE HERITAGE PATH',          orbit: 'LEO 380 km · Historical Orbiter Corridor (1981–2011)', factor: 1.00 },
+            skylab:       { label: 'SKYLAB ORBIT PLATFORM',          orbit: 'LEO 435 km · Skylab Altitude Corridor', factor: 0.98 },
+            mir:          { label: 'MIR MEMORIAL ORBITAL TRACK',     orbit: 'LEO 390 km · Mir De-orbit Memorial Corridor', factor: 0.95 },
+            gemini:       { label: 'MERCURY & GEMINI EXPRESS LOOP',  orbit: 'LEO 300 km · Express Rendezvous Circuit', factor: 0.90 }
+        };
+
+        const MISSION_CLASS = {
+            standard:   { label: 'STANDARD BERTH',   mult: 1.00, perk: 'Standard crew amenities & mess access' },
+            commander:  { label: 'COMMANDER CLASS',  mult: 1.15, perk: 'Priority boarding · upgraded berth · mission concierge' },
+            ambassador: { label: 'AMBASSADOR SUITE', mult: 1.30, perk: 'Private observation dome · zero-G chef · gold-plated cupola' }
+        };
+
+        const EXTRAS = {
+            insurance: { label: 'ORBITAL ABORT INSURANCE',     price: 500000000, icon: 'shield' },
+            priority:  { label: 'PRIORITY BOARDING LANE',      price: 50000000,  icon: 'zap' },
+            archive:   { label: 'MEMORY ARCHIVE CRYSTAL',      price: 25000000,  icon: 'gem' },
+            comms:     { label: 'INTERPLANETARY COMMS BUNDLE', price: 100000000, icon: 'radio' }
+        };
+
+        const BLOCKED_MSG = {
+            sun:   'Status: THERMAL DESTRUCTION GUARANTEED. Booking disabled for passenger safety.',
+            outer: 'UPCOMING / TECH CLEARANCE PENDING — Artemis XI Required. Booking unavailable.'
+        };
+
+        const MOTTOS = [
+            'TO THE STARS, WITH SNACKS',
+            'GRAVITY IS JUST A SUGGESTION',
+            'YOUR SEAT BELT IS YOUR BEST FRIEND',
+            'ABANDON ATMOSPHERE, ALL YE WHO ENTER',
+            'REENTRY IS MANDATORY. SORRY.',
+            'BORN TO ORBIT · FORCED TO LAND'
+        ];
+
+        const SHUTTLES = ['STARDANCE ORION II', 'ARTEMIS VII HEAVY', 'ENDEAVOUR-X', 'DISCOVERY II ARCH'];
+        const SEATS = [
+            'DECK 1 — SEAT 01A (WINDOW / EARTH-VIEW)',
+            'DECK 1 — SEAT 01B (AISLE)',
+            'COMMAND DECK — BERTH 04 (PANORAMA)',
+            'VIP OBSERVATION DECK — SEAT 0A (DOME)',
+            'DECK 2 — SEAT 07C (WINDOW / STAR-VIEW)'
+        ];
+
+        /* ---------------- Toasts ---------------- */
+        function toast(msg, type = 'info') {
+            const colors = {
+                info:  'border-cyan-400/40 bg-cyan-950/90 text-cyan-200',
+                error: 'border-red-400/50 bg-red-950/90 text-red-200',
+                gold:  'border-gold/40 bg-amber-950/90 text-amber-200'
+            };
+            const el = document.createElement('div');
+            el.className = 'toast glass ' + (colors[type] || colors.info);
+            el.textContent = msg;
+            $('toastWrap').appendChild(el);
+            setTimeout(() => { el.style.transition = 'opacity .4s, transform .4s'; el.style.opacity = '0'; el.style.transform = 'translateY(8px)'; }, 4200);
+            setTimeout(() => el.remove(), 4700);
+        }
+
+        /* ---------------- Trip type (round-trip enforced) ---------------- */
+        function selectTripType(type) {
+            if (type === 'oneway') {
+                $('oneWayModal').classList.remove('hidden');
+                $('oneWayModal').classList.add('flex');
+                return;
+            }
+            state.trip = 'round';
+            $('btnRoundTrip').classList.add('selected');
+            $('tripRoundCheck').classList.remove('hidden');
+            $('btnRoundTrip').classList.add('!border-cyan-400');
+            toast('Round-trip trajectory locked. Your survival is our priority. 🛰️', 'gold');
+        }
+
+        function closeOneWayModal() {
+            $('oneWayModal').classList.add('hidden');
+            $('oneWayModal').classList.remove('flex');
+            selectTripType('round');
+        }
+
+        /* ---------------- Destination selection ---------------- */
+        function chooseDestination(key, silent) {
+            if (paying) return;
+            state.dest = key;
+            const meta = DEST_META[key];
+            state.destLabel = meta.label;
+            state.orbit = meta.orbit;
+            document.querySelectorAll('.dest-card[data-dest]').forEach(card => {
+                const active = card.dataset.dest === key;
+                card.classList.toggle('selected', active);
+                const check = card.querySelector('.dest-check');
+                check.classList.toggle('hidden', !active);
+                check.classList.toggle('flex', active);
+                check.classList.toggle('bg-cyan-400', active);
+                check.classList.toggle('border-cyan-400', active);
+            });
+            if (!silent) toast('Trajectory locked: ' + meta.label + '  (×' + meta.factor.toFixed(2) + ')', 'gold');
+        }
+
+        /* ---------------- Training status ---------------- */
+        function setTraining(val) {
+            if (paying) return;
+            state.training = val;
+            document.querySelectorAll('#panel-2 .opt-card').forEach(c => c.classList.remove('selected'));
+            const target = val === 'no' ? 'optNoTraining' : 'optYesTraining';
+            $(target).classList.add('selected');
+            document.querySelectorAll('#panel-2 .opt-check').forEach(c => { c.classList.add('hidden'); c.classList.remove('flex'); });
+            const check = $(target).querySelector('.opt-check');
+            check.classList.remove('hidden'); check.classList.add('flex');
+            document.querySelectorAll('input[name="training"]').forEach(r => { r.checked = (r.value === val); });
+            updatePrice();
+        }
+
+        /* ---------------- Catering ---------------- */
+        function toggleFood(card, id) {
+            if (paying) return;
+            const box = $(id);
+            box.checked = !box.checked;
+            const check = card.querySelector('.opt-check');
+            check.classList.toggle('hidden', !box.checked);
+            check.classList.toggle('flex', box.checked);
+            if (box.checked) state.foods.add(id); else state.foods.delete(id);
+            updatePrice();
+        }
+
+        /* ---------------- Dates ---------------- */
+        function localDateStr(d) {
+            const p = (n) => String(n).padStart(2, '0');
+            return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+        }
+
+        function initDates() {
+            const today = new Date();
+            const ret = new Date(today.getTime() + 14 * 86400000);
+            state.depart = localDateStr(today);
+            state.ret = localDateStr(ret);
+            $('departDate').value = state.depart;
+            $('departDate').min = state.depart;
+            $('returnDate').value = state.ret;
+            $('returnDate').min = localDateStr(new Date(today.getTime() + 86400000));
+        }
+
+        function onDepartChange() {
+            state.depart = $('departDate').value;
+            const next = new Date(state.depart + 'T00:00:00');
+            next.setDate(next.getDate() + 1);
+            $('returnDate').min = localDateStr(next);
+            if (!state.ret || state.ret <= state.depart) {
+                state.ret = localDateStr(next);
+                $('returnDate').value = state.ret;
+            }
+            updatePrice();
+        }
+
+        function onReturnChange() {
+            state.ret = $('returnDate').value;
+            if (state.ret <= state.depart) {
+                toast('Return must be after departure. Round-trip protocol enforced.', 'error');
+                $('returnDate').value = state.ret;
+                $('returnDate').classList.add('error');
+                setTimeout(() => $('returnDate').classList.remove('error'), 1600);
+                onDepartChange();
+            }
+            updatePrice();
+        }
+
+        /* ---------------- Travelers / mission class / extras ---------------- */
+        function setTravelers(n) {
+            if (paying) return;
+            state.count = n;
+            while (state.passengers.length < n) state.passengers.push('');
+            state.passengers.length = n;
+            document.querySelectorAll('#travelerRow button').forEach(b => {
+                const active = +b.dataset.count === n;
+                b.classList.toggle('selected', active);
+                const ic = b.querySelector('i');
+                if (ic) ic.className = 'w-4 h-4 shrink-0 ' + (active ? 'text-cyan-400' : 'text-slate-400');
+            });
+            if (currentStep === 4) renderPassengerInputs();
+            updatePrice();
+        }
+
+        function setMissionClass(k) {
+            if (paying) return;
+            state.missionClass = k;
+            ['standard', 'commander', 'ambassador'].forEach(c => {
+                const el = $('cls' + c.charAt(0).toUpperCase() + c.slice(1));
+                if (!el) return;
+                el.classList.toggle('selected', c === k);
+                const chk = el.querySelector('.opt-check');
+                chk.classList.toggle('hidden', c !== k);
+                chk.classList.toggle('flex', c === k);
+            });
+            updatePrice();
+        }
+
+        function toggleExtra(card, key) {
+            if (paying) return;
+            const box = $(key);
+            if (!box) return;
+            box.checked = !box.checked;
+            const check = card.querySelector('.opt-check');
+            check.classList.toggle('hidden', !box.checked);
+            check.classList.toggle('flex', box.checked);
+            if (box.checked) state.extras.add(key); else state.extras.delete(key);
+            updatePrice();
+        }
+
+        /* ---------------- Pricing engine v2 ---------------- */
+        const fmtMoney = (n) => '$' + (Math.round(n / 1e6) * 1e6).toLocaleString();
+        const fmtDisplay = (n) => state.unit === 'stardust'
+            ? Math.round(n / 1e6).toLocaleString() + ' ★ STARDUST'
+            : fmtMoney(n) + ' USD';
+
+        function setUnit(u) {
+            state.unit = u;
+            $('unitUsd').className = 'px-2 py-1.5 border-r border-slate-700 ' + (u === 'usd' ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-500 hover:text-slate-300');
+            $('unitStar').className = 'px-2 py-1.5 ' + (u === 'stardust' ? 'bg-gold/25 text-gold' : 'text-slate-500 hover:text-gold');
+            // force re-render even though the numeric total is unchanged
+            $('priceTotal').textContent = fmtDisplay(lastTotalNum);
+            $('payLabel').innerHTML = 'AUTHORIZE<br>' + fmtDisplay(lastTotalNum) + '<br>PAYMENT';
+            updatePrice();
+        }
+
+        function updatePrice() {
+            const factor = DEST_META[state.dest].factor;
+            const cls = MISSION_CLASS[state.missionClass];
+            const n = state.count;
+
+            const base = BASE_FARE * factor * n;
+            const classUpgrade = BASE_FARE * factor * (cls.mult - 1) * n;
+            const training = (state.training === 'no' ? TRAIN_NO : TRAIN_YES) * n;
+            const catering = state.foods.size * FOOD_PRICE;
+            let extras = 0;
+            state.extras.forEach(k => { extras += EXTRAS[k].price; });
+            const total = base + classUpgrade + training + catering + extras;
+
+            $('baseFareMeta').textContent = '($3B × ' + factor.toFixed(2) + ' × ' + n + (n === 1 ? ' traveler' : ' travelers') + ')';
+            $('baseFareValue').textContent = fmtMoney(base);
+            $('destFeeLabel').textContent = 'Trajectory Factor · ' + state.destLabel.split('—')[0].trim();
+            $('destFeeValue').textContent = '×' + factor.toFixed(2);
+            $('classFeeLabel').textContent = 'Mission Class · ' + cls.label;
+            $('classFeeValue').textContent = classUpgrade ? '+ ' + fmtMoney(classUpgrade) : 'INCLUDED';
+            $('trainingFeeValue').textContent = '+ ' + fmtMoney(training);
+            $('trainingFeeLabel').textContent = (state.training === 'no' ? 'Training Surcharge × ' + n + ' (Centrifuge & Vomit Comet)' : 'Certification & Safety Clearance × ' + n);
+            $('cateringCount').textContent = '(' + state.foods.size + (state.foods.size === 1 ? ' item' : ' items') + ')';
+            $('cateringFeeValue').textContent = catering ? '+ ' + fmtMoney(catering) : '+ $0';
+            $('extrasCount').textContent = '(' + (state.extras.size ? state.extras.size + ' selected' : 'none') + ')';
+            $('extrasFeeValue').textContent = extras ? '+ ' + fmtMoney(extras) : '+ $0';
+            $('totalMeta').textContent = '(' + n + (n === 1 ? ' passenger' : ' passengers') + ')';
+            animateTotal(total);
+            $('payLabel').innerHTML = 'AUTHORIZE<br>' + fmtDisplay(total) + '<br>PAYMENT';
+            saveDraft();
+        }
+
+        function animateTotal(to) {
+            if (to === lastTotalNum) return;
+            const from = lastTotalNum;
+            lastTotalNum = to;
+            const el = $('priceTotal');
+            if (priceAnim) cancelAnimationFrame(priceAnim);
+            const t0 = performance.now(), dur = 420;
+            const settle = () => { if (lastTotalNum === to) el.textContent = fmtDisplay(to); };
+            const step = (t) => {
+                const k = Math.min((t - t0) / dur, 1);
+                const e = 1 - Math.pow(1 - k, 3);
+                el.textContent = fmtDisplay(Math.round(from + (to - from) * e));
+                if (k < 1) priceAnim = requestAnimationFrame(step);
+            };
+            priceAnim = requestAnimationFrame(step);
+            setTimeout(settle, dur + 60);
+        }
+
+        /* ---------------- Passenger form (multi-manifest) ---------------- */
+        function escAttr(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        }
+
+        function renderPassengerInputs() {
+            const wrap = $('passengerList');
+            let html = '';
+            for (let i = 0; i < state.count; i++) {
+                html += '<div class="space-y-1.5">' +
+                    '<label class="text-xs text-slate-400 block" for="pname-' + i + '">PASSENGER ' + (i + 1) +
+                    (i === 0 ? ' <span class="text-cyan-400 font-orbitron text-[10px] tracking-widest">· COMMANDER / PRIMARY</span>' : '') +
+                    ' <span class="text-slate-600 normal-case">(Letters Only — Auto BOLD CAPS)</span></label>' +
+                    '<input type="text" id="pname-' + i + '" data-idx="' + i + '" oninput="formatPName(this)" placeholder="FULL LEGAL NAME" autocomplete="off" spellcheck="false" class="inp font-orbitron font-bold uppercase tracking-widest" value="' + escAttr(state.passengers[i] || '') + '">' +
+                    '<p id="pnameErr-' + i + '" class="hidden text-red-400 text-xs mt-1 font-mono">✕ Letters only — numbers & symbols rejected.</p>' +
+                '</div>';
+            }
+            wrap.innerHTML = html;
+        }
+
+        function formatPName(input) {
+            input.value = input.value.replace(/[^a-zA-Z\s]/g, '').replace(/\s+/g, ' ').toUpperCase();
+            state.passengers[+input.dataset.idx] = input.value.trim();
+            input.classList.remove('error');
+            const err = $('pnameErr-' + input.dataset.idx);
+            if (err) err.classList.add('hidden');
+            saveDraft();
+        }
+
+        function detectNetwork(num) {
+            if (num.startsWith('4')) return { name: 'VISA',        cls: 'bg-blue-500/90 border-blue-400/60 text-white', dot: 'bg-blue-300' };
+            if (/^(5[1-5]|2[2-7])/.test(num)) return { name: 'MASTERCARD', cls: 'bg-orange-500/90 border-orange-400/60 text-white', dot: 'bg-orange-300' };
+            if (num.startsWith('34') || num.startsWith('37')) return { name: 'AMEX', cls: 'bg-emerald-600/90 border-emerald-400/60 text-white', dot: 'bg-emerald-300' };
+            const others = [
+                { name: 'DISCOVER',   cls: 'bg-violet-600/90 border-violet-400/60 text-white', dot: 'bg-violet-300' },
+                { name: 'DINERS CLUB',cls: 'bg-slate-600/90 border-slate-400/60 text-white',    dot: 'bg-slate-300' },
+                { name: 'STARLINK PAY',cls: 'bg-cyan-600/90 border-cyan-400/60 text-white',     dot: 'bg-cyan-300' }
+            ];
+            return others[Math.floor(Math.random() * others.length)];
+        }
+
+        function formatCard(input) {
+            input.value = input.value.replace(/[^0-9]/g, '');
+            const digits = input.value;
+            const spaced = digits.replace(/(.{4})/g, '$1 ').trim();
+            if (digits.length > 16) {
+                input.value = spaced.slice(0, 19);
+            } else {
+                input.value = spaced;
+            }
+            state.cardDigits = input.value.replace(/\s/g, '').slice(0, 16);
+            input.classList.remove('error');
+            $('cardErr').classList.add('hidden');
+            saveDraft();
+
+            const badge = $('cardBadge');
+            if (state.cardDigits.length > 0) {
+                const net = detectNetwork(state.cardDigits);
+                state.network = net.name;
+                badge.classList.remove('hidden');
+                badge.classList.add('flex');
+                badge.className = 'absolute right-2.5 top-[2.35rem] font-orbitron font-bold text-[10px] px-2 py-1 rounded-md border items-center gap-1.5 ' + net.cls;
+                $('cardBadgeDot').className = 'w-2 h-2 rounded-full inline-block ' + net.dot;
+                $('cardBadgeText').textContent = net.name;
+            } else {
+                badge.classList.add('hidden');
+                badge.classList.remove('flex');
+                state.network = '';
+            }
+        }
+
+        function validatePassenger() {
+            let ok = true;
+            state.passengers.forEach((nm, i) => {
+                const clean = (nm || '').trim();
+                state.passengers[i] = clean;
+                const inp = $('pname-' + i);
+                if (inp) {
+                    inp.classList.remove('error');
+                    $('pnameErr-' + i).classList.add('hidden');
+                    if (!/^[A-Za-z ]{2,}$/.test(clean)) {
+                        inp.classList.add('error');
+                        $('pnameErr-' + i).classList.remove('hidden');
+                        ok = false;
+                    }
+                }
+            });
+            state.name = state.passengers[0] || '';
+            state.cardDigits = $('cardNumber').value.replace(/\s/g, '');
+            state.cvv = $('cvv').value;
+
+            if (state.cardDigits.length < 13 || state.cardDigits.length > 16) {
+                $('cardNumber').classList.add('error'); $('cardErr').classList.remove('hidden'); ok = false;
+            }
+            if (state.cvv.length < 3 || state.cvv.length > 4) {
+                $('cvv').classList.add('error'); $('cvvErr').classList.remove('hidden'); ok = false;
+            }
+            return ok;
+        }
+
+        /* ---------------- Stepper ---------------- */
+        function paintStepper() {
+            document.querySelectorAll('#stepper .step-item').forEach((item, i) => {
+                const n = i + 1;
+                item.classList.toggle('active', n === currentStep);
+                item.classList.toggle('done', n < currentStep);
+                const circle = item.querySelector('.step-circle');
+                circle.textContent = n < currentStep ? '✓' : n;
+            });
+            $('stepProgress').style.width = ((currentStep - 1) / 5 * 100) + '%';
+
+            const labels = {
+                1: 'DEPARTURE SETUP', 2: 'MISSION REQUIREMENTS', 3: 'LIFE SUPPORT & CATERING',
+                4: 'PASSENGER DETAILS', 5: 'SIMULATED PAYMENT'
+            };
+            const nextLabels = {
+                1: 'CONTINUE TO MISSION REQUIREMENTS', 2: 'CONTINUE TO LIFE SUPPORT & CATERING',
+                3: 'CONTINUE TO PASSENGER DETAILS', 4: 'CONTINUE TO SIMULATED PAYMENT'
+            };
+            $('navHint').textContent = 'CURRENT STAGE · ' + (labels[currentStep] || '');
+            $('btnBack').classList.toggle('hidden', currentStep === 1);
+            $('btnBack').classList.toggle('flex', currentStep > 1);
+            $('btnNext').classList.toggle('hidden', currentStep === 5);
+            if (currentStep < 5) $('btnNextLabel').textContent = nextLabels[currentStep];
+        }
+
+        function showPanel(n) {
+            document.querySelectorAll('.step-panel').forEach(p => p.classList.add('hidden'));
+            const panel = $('panel-' + n);
+            panel.classList.remove('hidden');
+            panel.classList.remove('panel-enter');
+            void panel.offsetWidth;
+            panel.classList.add('panel-enter');
+        }
+
+        function validateStep(n) {
+            if (n === 2) {
+                if (!state.depart || !state.ret) {
+                    toast('Please select valid departure and return dates.', 'error');
+                    $('dateRow').classList.add('shake');
+                    setTimeout(() => $('dateRow').classList.remove('shake'), 500);
+                    return false;
+                }
+                if (state.ret <= state.depart) {
+                    toast('Return date must be after departure date.', 'error');
+                    return false;
+                }
+            }
+            if (n === 5 && !validatePassenger()) {
+                toast('Manifest incomplete — check highlighted fields.', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        function goToStep(n) {
+            if (paying) return;
+            if (n < 1 || n > 5 || n === currentStep) return;
+            if (n > currentStep && !validateStep(n)) return;
+            currentStep = n;
+            if (n === 4) renderPassengerInputs();
+            paintStepper();
+            showPanel(n);
+            saveDraft();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* ---------------- Payment sequence ---------------- */
+        function fireConfetti() {
+            if (typeof confetti !== 'function') return;
+            confetti({ particleCount: 240, spread: 110, origin: { y: 0.62 } });
+            setTimeout(() => confetti({ particleCount: 130, angle: 60, spread: 65, origin: { x: 0, y: 0.7 } }), 160);
+            setTimeout(() => confetti({ particleCount: 130, angle: 120, spread: 65, origin: { x: 1, y: 0.7 } }), 320);
+            setTimeout(() => confetti({ particleCount: 180, spread: 150, startVelocity: 38, scalar: 1.15, origin: { y: 0.45 } }), 480);
+        }
+
+        function processPayment() {
+            if (paying) return;
+            if (!validatePassenger()) {
+                toast('Manifest incomplete — review passenger details.', 'error');
+                return;
+            }
+
+            paying = true;
+            const btn = $('btnPay');
+            const spinner = $('paySpinner');
+            const check = $('payCheck');
+            const label = $('payLabel');
+            const nav = $('stepNav');
+
+            btn.disabled = true;
+            nav.classList.add('opacity-40', 'pointer-events-none');
+            label.textContent = 'AUTHORIZING MISSION CREDENTIALS…';
+            spinner.classList.add('show');
+
+            // 2.5s: morph spinner -> checkmark
+            setTimeout(() => {
+                spinner.classList.remove('show');
+                check.classList.add('show');
+                label.textContent = 'PAYMENT CLEARED! ✓';
+                fireConfetti();
+            }, 2500);
+
+            // +1.1s: reveal boarding pass
+            setTimeout(() => {
+                renderTicket();
+                savePassToArchive(lastTicket);
+                $('bookingCard').classList.add('hidden');
+                $('stepNav').classList.add('hidden');
+                const ts = $('ticketSection');
+                ts.classList.remove('hidden');
+                ts.classList.remove('ticket-reveal');
+                void ts.offsetWidth;
+                ts.classList.add('ticket-reveal');
+                currentStep = 6;
+                paying = false;
+                paintStepper();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 3600);
+        }
+
+        /* ---------------- Boarding pass ---------------- */
+        const fmtDate = (s) => {
+            const p = String(s).split('-');
+            if (p.length !== 3) return s;
+            const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+            return p[2] + ' ' + months[+p[1] - 1] + ' ' + p[0];
+        };
+
+        function currentPassData() {
+            return {
+                name: state.passengers[0] || '',
+                count: state.count,
+                passengers: state.passengers.slice(),
+                destLabel: state.destLabel,
+                orbit: state.orbit,
+                dest: state.dest,
+                price: $('priceTotal').textContent,
+                depart: state.depart,
+                ret: state.ret,
+                missionClass: state.missionClass,
+                training: state.training,
+                extras: [...state.extras],
+                network: state.network,
+                spacecraft: state.spacecraft,
+                seat: state.seat,
+                missionCode: state.missionCode
+            };
+        }
+
+        function renderTicket(saved) {
+            const s = saved || (function () {
+                state.spacecraft = SHUTTLES[Math.floor(Math.random() * SHUTTLES.length)];
+                state.seat = SEATS[Math.floor(Math.random() * SEATS.length)];
+                state.missionCode = 'STD-' + new Date().getFullYear() + '-' +
+                    Array.from({ length: 4 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 32)]).join('');
+                return currentPassData();
+            })();
+            lastTicket = s;
+
+            const crewNames = (s.passengers && s.passengers.length ? s.passengers : [s.name]).filter(Boolean);
+            const primary = crewNames[0] || s.name;
+            $('ticketName').textContent = 'COMMANDER ' + primary + (crewNames.length > 1 ? '  (+' + (crewNames.length - 1) + ' TRAVELER' + (crewNames.length > 2 ? 'S' : '') + ')' : '');
+            $('ticketShuttle').textContent = s.spacecraft;
+            $('ticketSeat').textContent = s.seat;
+            $('ticketDestination').textContent = s.destLabel;
+            $('ticketOrbit').textContent = 'ORBIT DETAILS · ' + s.orbit;
+            $('ticketPrice').textContent = s.price;
+            $('ticketMissionCode').textContent = s.missionCode;
+            $('ticketMissionDate').textContent = 'LAUNCH T+0 · ' + fmtDate(s.depart) + ' · RETURN ' + fmtDate(s.ret);
+            if (!s.motto) { s.motto = MOTTOS[Math.floor(Math.random() * MOTTOS.length)]; state.motto = s.motto; }
+            $('ticketMotto').textContent = '✦ ' + s.motto;
+
+
+            // Crew manifest
+            const manifest = $('ticketManifest');
+            if (crewNames.length > 1) {
+                manifest.classList.remove('hidden');
+                $('ticketManifestList').innerHTML = crewNames.map((nm, i) =>
+                    '<span class="text-slate-200">' + escAttr(nm) + (i === 0 ? ' <span class="text-cyan-400">(CMD)</span>' : '') + '</span>'
+                ).join('');
+            } else {
+                manifest.classList.add('hidden');
+            }
+
+            // Chips: class · factor · training · extras
+            const factor = DEST_META[s.dest] ? DEST_META[s.dest].factor : 1;
+            const cls = MISSION_CLASS[s.missionClass] || MISSION_CLASS.standard;
+            const chips = [
+                '<span class="text-[10px] font-orbitron tracking-widest bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 rounded-full px-3 py-1">' + cls.label + '</span>',
+                '<span class="text-[10px] font-orbitron tracking-widest bg-gold/10 border border-gold/40 text-gold rounded-full px-3 py-1">TRAJECTORY ×' + factor.toFixed(2) + '</span>',
+                '<span class="text-[10px] font-orbitron tracking-widest bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 rounded-full px-3 py-1">' + (s.training === 'yes' ? 'NASA CERTIFIED' : 'TRAINING ENROUTE') + '</span>'
+            ];
+            (s.extras || []).forEach(k => {
+                if (EXTRAS[k]) chips.push('<span class="text-[10px] font-orbitron tracking-widest bg-violet-500/10 border border-violet-500/40 text-violet-300 rounded-full px-3 py-1">' + EXTRAS[k].label + '</span>');
+            });
+            if (s.network) chips.push('<span class="text-[10px] font-orbitron tracking-widest bg-blue-500/10 border border-blue-500/40 text-blue-300 rounded-full px-3 py-1">' + escAttr(s.network) + ' AUTHORIZED</span>');
+            $('ticketChips').innerHTML = chips.join('');
+
+            // Barcode
+            const seed = s.missionCode + primary + String(s.price).replace(/[^0-9]/g, '');
+            buildBarcode($('ticketBarcode'), seed);
+            $('ticketBarcodeText').textContent = s.missionCode.replace('-', ' ');
+
+            // QR code (qrcode-generator UMD global)
+            const payload = 'STARDANCE|NASA-STD-2026|' + s.missionCode + '|' + primary + '|' + s.spacecraft + '|' + s.seat + '|' + s.destLabel + '|' + s.price;
+            try {
+                if (typeof qrcode === 'function') {
+                    const qr = qrcode(0, 'M');
+                    qr.addData(payload);
+                    qr.make();
+                    $('qrRender').innerHTML = '<img src="' + qr.createDataURL(4, 2) + '" width="104" height="104" alt="Mission QR code">';
+                } else {
+                    throw new Error('QR lib unavailable');
+                }
+            } catch (e) {
+                $('qrRender').innerHTML = '<span class="text-[9px] font-mono text-slate-800 text-center leading-tight">QR OFFLINE<br>VERIFY AT<br>GATE</span>';
+            }
+
+            startCountdown(s.depart);
+        }
+
+        /* ---------------- T-minus countdown ---------------- */
+        let cdTimer = null;
+        function startCountdown(departISO) {
+            if (cdTimer) clearInterval(cdTimer);
+            const el = $('ticketCountdown');
+            const target = new Date((departISO || '') + 'T00:00:00');
+            if (isNaN(target.getTime())) {
+                el.textContent = 'LAUNCH DATE TBD';
+                return;
+            }
+            const pad = (x) => String(x).padStart(2, '0');
+            const render = () => {
+                const diff = target.getTime() - Date.now();
+                if (diff <= 0) { el.textContent = 'T+ MISSION UNDERWAY'; return; }
+                const d = Math.floor(diff / 86400000);
+                const h = Math.floor(diff / 3600000) % 24;
+                const m = Math.floor(diff / 60000) % 60;
+                const s = Math.floor(diff / 1000) % 60;
+                el.textContent = 'T-MINUS ' + d + 'D ' + pad(h) + ':' + pad(m) + ':' + pad(s);
+            };
+            render();
+            cdTimer = setInterval(render, 1000);
+        }
+
+        function buildBarcode(el, seed) {
+            let n = 7;
+            for (let i = 0; i < seed.length; i++) n = (n * 31 + seed.charCodeAt(i)) >>> 0;
+            let html = '';
+            for (let i = 0; i < 48; i++) {
+                n = (n * 1103515245 + 12345) >>> 0;
+                const w = (n % 3) + 1;
+                html += '<span style="width:' + w + 'px;margin-right:1px"></span>';
+                html += '<span style="width:' + ((n >> 3) % 2 ? 2 : 1) + 'px;background:transparent;margin-right:1px"></span>';
+            }
+            el.innerHTML = html;
+        }
+
+        function copyMissionCode() {
+            const code = (lastTicket && lastTicket.missionCode) || state.missionCode || '';
+            const done = () => toast('Mission code ' + code + ' copied to clipboard.', 'gold');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(code).then(done, done);
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = code;
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); } catch (e) {}
+                document.body.removeChild(ta);
+                done();
+            }
+        }
+
+        function downloadPass() {
+            const node = $('ticketCard');
+            const code = (lastTicket && lastTicket.missionCode) || state.missionCode || 'pass';
+            if (typeof html2canvas === 'function') {
+                html2canvas(node, { backgroundColor: '#0A1128', scale: 2, useCORS: true, logging: false }).then(canvas => {
+                    const a = document.createElement('a');
+                    a.download = 'stardance-boarding-pass-' + code + '.png';
+                    a.href = canvas.toDataURL('image/png');
+                    a.click();
+                    toast('Boarding pass downloaded. Gate 39A awaits. 🚀', 'gold');
+                }).catch(() => window.print());
+            } else {
+                window.print();
+            }
+        }
+
+        /* ---------------- Reset ---------------- */
+        function bookAnother() {
+            paying = false;
+            state.foods.clear();
+            state.extras.clear();
+            state.name = ''; state.cardDigits = ''; state.cvv = ''; state.network = '';
+            state.passengers = [''];
+            state.spacecraft = ''; state.seat = ''; state.missionCode = '';
+            state.unit = 'usd';
+            lastTicket = null;
+            if (cdTimer) { clearInterval(cdTimer); cdTimer = null; }
+
+            $('bookingCard').classList.remove('hidden');
+            $('stepNav').classList.remove('hidden', 'opacity-40', 'pointer-events-none');
+            $('ticketSection').classList.add('hidden');
+
+            $('cardNumber').value = '';
+            $('cvv').value = '';
+            $('cardBadge').classList.add('hidden');
+
+            document.querySelectorAll('#panel-3 input[type=checkbox]').forEach(b => { b.checked = false; });
+            document.querySelectorAll('#panel-4 .inp').forEach(i => i.classList.remove('error'));
+            ['cardErr', 'cvvErr'].forEach(id => $(id).classList.add('hidden'));
+
+            $('btnPay').disabled = false;
+            $('paySpinner').classList.remove('show');
+            $('payCheck').classList.remove('show');
+
+            setTraining('no');
+            setMissionClass('standard');
+            setTravelers(1);
+            chooseDestination('mars');
+            initDates();
+            renderPassengerInputs();
+
+            currentStep = 1;
+            paintStepper();
+            showPanel(1);
+            updatePrice();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            toast('New mission sequence initialized.', 'info');
+        }
+
+        /* ---------------- Persistence: draft + archive ---------------- */
+        function saveDraft() {
+            try {
+                const d = {
+                    step: currentStep,
+                    dest: state.dest, depart: state.depart, ret: state.ret,
+                    training: state.training, foods: [...state.foods],
+                    count: state.count, passengers: state.passengers,
+                    missionClass: state.missionClass, extras: [...state.extras],
+                    cardDigits: state.cardDigits, cvv: state.cvv, network: state.network, unit: state.unit
+                };
+                localStorage.setItem('stardance.draft', JSON.stringify(d));
+                const dot = $('saveDot');
+                if (dot) {
+                    dot.classList.remove('hidden');
+                    clearTimeout(saveDot._t);
+                    saveDot._t = setTimeout(() => dot.classList.add('hidden'), 1200);
+                }
+            } catch (e) { /* storage unavailable */ }
+        }
+
+        function restoreDraft() {
+            let d = null;
+            try { d = JSON.parse(localStorage.getItem('stardance.draft') || 'null'); } catch (e) {}
+            if (!d || !DEST_META[d.dest]) return;
+
+            state.dest = d.dest;
+            state.depart = d.depart || state.depart;
+            state.ret = d.ret || state.ret;
+            state.training = d.training || 'no';
+            state.missionClass = d.missionClass || 'standard';
+            state.count = Math.min(Math.max(d.count || 1, 1), 4);
+            state.passengers = Array.isArray(d.passengers) ? d.passengers.slice(0, 4) : [''];
+            while (state.passengers.length < state.count) state.passengers.push('');
+            state.foods = new Set(Array.isArray(d.foods) ? d.foods : []);
+            state.extras = new Set(Array.isArray(d.extras) ? d.extras : []);
+            state.cardDigits = d.cardDigits || '';
+            state.cvv = d.cvv || '';
+            state.network = d.network || '';
+            state.unit = d.unit === 'stardust' ? 'stardust' : 'usd';
+
+            const meta = DEST_META[state.dest];
+            state.destLabel = meta.label;
+            state.orbit = meta.orbit;
+
+            $('departDate').value = state.depart;
+            $('returnDate').value = state.ret;
+            chooseDestination(state.dest, true);
+            setTraining(state.training);
+            setMissionClass(state.missionClass);
+            setTravelers(state.count);
+            renderPassengerInputs();
+
+            document.querySelectorAll('#panel-3 input[type=checkbox]').forEach(b => {
+                const on = state.foods.has(b.id) || state.extras.has(b.id);
+                b.checked = on;
+                const card = b.closest('.opt-card');
+                if (!card) return;
+                const chk = card.querySelector('.opt-check');
+                chk.classList.toggle('hidden', !on);
+                chk.classList.toggle('flex', on);
+            });
+
+            state.passengers.forEach((nm, i) => {
+                const inp = $('pname-' + i);
+                if (inp) inp.value = nm;
+            });
+            if (state.cardDigits) {
+                $('cardNumber').value = state.cardDigits.replace(/(.{4})/g, '$1 ').trim();
+                formatCard($('cardNumber'));
+            }
+            $('cvv').value = state.cvv;
+
+            currentStep = Math.min(Math.max(d.step || 1, 1), 5);
+            if (currentStep > 1) toast('Mission draft restored. Welcome back, pioneer. 🛰️', 'gold');
+        }
+
+        function loadPasses() {
+            try { savedPasses = JSON.parse(localStorage.getItem('stardance.passes') || '[]') || []; } catch (e) { savedPasses = []; }
+        }
+
+        function persistPasses() {
+            try { localStorage.setItem('stardance.passes', JSON.stringify(savedPasses)); } catch (e) {}
+            const c = $('archiveCount');
+            if (c) c.textContent = savedPasses.length;
+        }
+
+        function savePassToArchive(passData) {
+            if (!passData) return;
+            savedPasses.unshift(JSON.parse(JSON.stringify(passData)));
+            if (savedPasses.length > 24) savedPasses.length = 24;
+            persistPasses();
+            renderArchive();
+        }
+
+        function openArchive() {
+            renderArchive();
+            const m = $('archiveModal');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+        }
+
+        function closeArchive() {
+            $('archiveModal').classList.add('hidden');
+            $('archiveModal').classList.remove('flex');
+        }
+
+        function renderArchive() {
+            const list = $('archiveList');
+            if (!savedPasses.length) {
+                list.innerHTML = '<div class="text-center py-10 text-slate-500 font-mono text-sm">NO PASSES ISSUED YET.<br><span class="text-slate-600 text-xs">Complete a booking to mint your first titanium pass.</span></div>';
+                return;
+            }
+            list.innerHTML = savedPasses.map((p, i) => {
+                const names = (p.passengers && p.passengers.length ? p.passengers : [p.name]).filter(Boolean);
+                return '<div class="glass rounded-xl p-4 flex flex-wrap items-center gap-3">' +
+                    '<div class="flex-1 min-w-[200px]">' +
+                        '<div class="font-orbitron font-bold text-sm text-white">' + escAttr(names[0] || '—') + (names.length > 1 ? ' <span class="text-cyan-400">+' + (names.length - 1) + '</span>' : '') + '</div>' +
+                        '<div class="text-xs text-slate-400 font-mono mt-0.5">' + escAttr(p.destLabel || '') + ' · ' + fmtDate(p.depart) + ' · ' + escAttr(p.spacecraft || '') + '</div>' +
+                        '<div class="text-[10px] text-slate-500 font-mono mt-0.5">' + escAttr(p.missionCode || '') + '</div>' +
+                    '</div>' +
+                    '<div class="text-right">' +
+                        '<div class="text-xs text-emerald-400 font-mono">' + escAttr(p.price || '') + '</div>' +
+                        '<button onclick="viewPass(' + i + ')" class="mt-2 text-[10px] font-orbitron tracking-widest border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 rounded-md px-2.5 py-1.5 transition-all">REVIEW PASS</button>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        function viewPass(i) {
+            const p = savedPasses[i];
+            if (!p) return;
+            closeArchive();
+            renderTicket(p);
+            $('bookingCard').classList.add('hidden');
+            $('stepNav').classList.add('hidden');
+            $('ticketSection').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            toast('Pass ' + p.missionCode + ' loaded from archive.', 'info');
+        }
+
+        /* ---------------- UTC clock ---------------- */
+        function tickClock() {
+            const now = new Date();
+            $('utcClock').textContent = now.toISOString().slice(11, 19) + ' UTC';
+        }
+
+        /* ---------------- Keyboard nav ---------------- */
+        document.addEventListener('keydown', (e) => {
+            if (paying) return;
+            if (e.key === 'Escape') {
+                if (!$('archiveModal').classList.contains('hidden')) closeArchive();
+                if (!$('oneWayModal').classList.contains('hidden')) closeOneWayModal();
+                return;
+            }
+            if (e.key === 'Enter') {
+                const t = e.target;
+                if (t && t.tagName === 'INPUT' && currentStep === 4) {
+                    e.preventDefault();
+                    goToStep(5);
+                }
+            }
+        });
+
+        /* ---------------- Ticket tilt FX ---------------- */
+        (function attachTilt() {
+            const el = $('ticketCard');
+            if (!el) return;
+            el.addEventListener('mousemove', (e) => {
+                const r = el.getBoundingClientRect();
+                const px = (e.clientX - r.left) / r.width - 0.5;
+                const py = (e.clientY - r.top) / r.height - 0.5;
+                el.style.transform = 'perspective(1200px) rotateY(' + (px * 7).toFixed(2) + 'deg) rotateX(' + (-py * 7).toFixed(2) + 'deg)';
+            });
+            el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+        })();
+
+        /* ---------------- Init ---------------- */
+        (function init() {
+            initDates();
+            loadPasses();
+            restoreDraft();
+            persistPasses();
+            paintStepper();
+            showPanel(currentStep);
+            updatePrice();
+            tickClock();
+            setInterval(tickClock, 1000);
+            if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+        })();
+    </script>
+</body>
+</html>
