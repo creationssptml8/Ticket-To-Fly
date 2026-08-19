@@ -6,7 +6,7 @@ The project is designed like a futuristic space-travel portal where users can pl
 
 ## Live Demo
 
-🔗 **Vercel:** [Open Ticket To Fly]([YOUR_VERCEL_LINK_HERE](https://effortless-conkies-ca4164.netlify.app/))
+🔗 **Vercel:** [Open Ticket To Fly](https://effortless-conkies-ca4164.netlify.app/)
 
 🔗 **GitHub:** [View the source code](https://github.com/creationssptml8/Ticket-To-Fly)
 
