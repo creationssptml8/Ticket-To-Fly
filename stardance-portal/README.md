@@ -1,47 +1,94 @@
-# NASA × STARDANCE — Interplanetary Booking Portal
+# Ticket To Fly 🚀
 
-An ultra-premium, dark-themed interstellar booking portal, built as a **single self-contained
-`index.html`** — no build step, no server required. Open it in any browser and it runs.
+A fictional interplanetary ticket-booking website created for the NASA × Stardance Challenge.
 
-## Quick start
+The project is designed like a futuristic space-travel portal where users can plan a trip, choose a destination, add mission options, enter passenger details, complete a simulated booking, and receive a digital boarding pass.
 
-| Method | How |
-|---|---|
-| Double-click | Open `index.html` directly (all assets load from CDNs) |
-| Local server | `python3 -m http.server 8080 --directory stardance` → `http://localhost:8080` |
+## Live Demo
 
-## What's inside
+🔗 **Vercel:** [Open Ticket To Fly]([YOUR_VERCEL_LINK_HERE](https://effortless-conkies-ca4164.netlify.app/))
 
-**Flow (6-step wizard)**
-1. **Departure Setup** — round-trip enforced (One-Way triggers the sarcastic `NO` modal), Earth origin, destination cards with live trajectory factors, dates, traveler count (1–4).
-2. **Mission Requirements** — training status ($3B surcharge vs $2B certification) + mission class tier (Standard ×1.00 / Commander ×1.15 / Ambassador ×1.30).
-3. **Life Support & Catering** — 4 × $10M microgravity menu items + optional extras (abort insurance, priority boarding, memory crystal, comms bundle).
-4. **Passenger Manifest** — per-traveler names (letters-only, auto BOLD CAPS), 16-digit card with live VISA / MASTERCARD / AMEX / random-network badges, 3–4 digit CVV. Strict no-PII: no email, phone, age, address, or SSN, ever.
-5. **Simulated Payment** — full fare breakdown, USD ↔ ★STARDUST unit toggle, count-up total animation, glowing authorize button that morphs spinner → checkmark → confetti.
-6. **Digital Boarding Pass** — titanium-styled pass: randomized spacecraft/seat, crew manifest, mission code, orbit details, real scannable QR, CSS barcode, T-minus countdown, download-as-PNG, copy code.
+🔗 **GitHub:** [View the source code](https://github.com/creationssptml8/Ticket-To-Fly)
 
-**Persistence**
-- Wizard draft auto-saves to `localStorage` (key `stardance.draft`) — refresh resumes where you left off.
-- Issued passes are archived (key `stardance.passes`) and browsable via the gold **ARCHIVE** button in the header; any pass can be re-rendered.
+> This is a fictional project. It is not an official NASA website and does not process real payments.
 
-**Design**
-- Void Black `#05050A` base, animated starfield + drifting nebulae, glassmorphism with cyan glow, gold shimmer branding, Orbitron/Rajdhani type.
-- Fully responsive, keyboard-friendly (Enter advances, Esc closes modals), `prefers-reduced-motion` respected.
+## Features
 
-## Pricing engine
+- Six-step interplanetary booking flow.
+- Round-trip journey selection.
+- Destinations including Mars, the Moon, ISS, Skylab, Mir, and Gemini Express.
+- Destination-based pricing.
+- Mission classes:
+  - Standard.
+  - Commander.
+  - Ambassador.
+- Training and certification options.
+- Microgravity catering selections.
+- Optional extras such as priority boarding and abort insurance.
+- Passenger manifest for up to four travelers.
+- Simulated card-network detection.
+- Fictional payment authorization animation.
+- USD and Stardust display modes.
+- Digital boarding-pass generation.
+- Random spacecraft and seat assignments.
+- QR code and barcode on the boarding pass.
+- Copyable mission code.
+- Boarding-pass download as an image.
+- Pass archive.
+- Automatic draft saving using browser local storage.
+- Responsive layout for desktop and mobile.
+- Keyboard-friendly controls and reduced-motion support.
 
+## Technology
+
+- HTML5
+- CSS3
+- JavaScript
+- Tailwind CSS
+- Lucide icons
+- QR code generator
+- Canvas Confetti
+- html2canvas
+- Browser local storage
+
+The project is contained in a single `index.html` file, so it does not require a build process or backend server.
+
+## Running Locally
+
+Clone the repository:
+
+```bash
+git clone https://github.com/creationssptml8/Ticket-To-Fly.git
+cd Ticket-To-Fly
 ```
-per traveler:  $3B base × destination factor × mission-class multiplier
-training:      +$3B (untrained) or +$2B (NASA certified) per traveler
-catering:      +$10M per shared item
-extras:        flat add-ons
+
+You can open `index.html` directly in a browser, or start a local server:
+
+```bash
+python3 -m http.server 8080
 ```
 
-Destination factors: Mars ×1.25 · Lunar Surface ×1.10 · Lunar Orbit ×1.05 · ISS ×0.95 ·
-Shuttle ×1.00 · Skylab ×0.98 · Mir ×0.95 · Gemini Express ×0.90.
-The Sun and all outer planets are blocked — hover/click them to read why.
+Then visit:
 
-## Tech
+```text
+http://localhost:8080
+```
 
-HTML5 + Tailwind CSS (CDN) + Lucide icons + Canvas-Confetti + qrcode-generator + html2canvas.
-All client-side; nothing is transmitted anywhere.
+## Privacy
+
+This is a front-end-only simulation.
+
+- No real payments are processed.
+- No information is sent to a server.
+- Booking drafts and boarding passes are saved only in the browser.
+- Do not enter real card information into the demo.
+
+## Development Note
+
+I used Claude, Gemini, and Perplexity for brainstorming, debugging, explaining code, and getting help while developing some parts of the project. I reviewed and adapted the suggestions, tested the features, and assembled the final website myself.
+
+## Credits
+
+Created by **Lokesh Krishnan** for the NASA × Stardance Challenge.
+
+NASA × Stardance is used as the challenge context. This project is not an official NASA product.
