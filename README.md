@@ -1,3 +1,6 @@
+
+FOR THE BETTER README click on stardance-portal then CLICK ON README.md THANK YOU!
+
 NASA × STARDANCE — Interplanetary Booking Portal
 An ultra-premium, dark-themed interstellar booking portal, built as a single self-contained index.html — no build step, no server required. Open it in any browser and it runs.
 
